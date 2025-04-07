@@ -3,13 +3,12 @@
     <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
         <group>
-            <file>file:/D:/ProjectJava/Netbeans/GaG-Etudiants/src/com/gag/model/ModelMessage.java</file>
-            <file>file:/D:/ProjectJava/Netbeans/GaG-Etudiants/src/com/gag/service/ServiceUser.java</file>
-            <file>file:/D:/ProjectJava/Netbeans/GaG-Etudiants/src/com/gag/model/ModelUser.java</file>
-            <file>file:/D:/ProjectJava/Netbeans/GaG-Etudiants/src/com/gag/model/ModelCour.java</file>
-            <file>file:/D:/ProjectJava/Netbeans/GaG-Etudiants/src/com/gag/main/Main.java</file>
-            <file>file:/D:/ProjectJava/Netbeans/GaG-Etudiants/src/com/gag/service/ServiceMail.java</file>
-            <file>file:/D:/ProjectJava/Netbeans/GaG-Etudiants/src/com/gag/component/PanelVerifyCode.java</file>
+            <file>file:/D:/ProjectJava/Netbeans/GaG-Etudiants/src/com/gag/swing/ButtonCustom.java</file>
+            <file>file:/D:/ProjectJava/Netbeans/GaG-Etudiants/src/com/gag/component/Menu.java</file>
+            <file>file:/D:/ProjectJava/Netbeans/GaG-Etudiants/src/com/gag/form/Message.java</file>
+            <file>file:/D:/ProjectJava/Netbeans/GaG-Etudiants/src/com/gag/main/MainSystem.java</file>
+            <file>file:/D:/ProjectJava/Netbeans/GaG-Etudiants/src/com/gag/form/Profile.java</file>
+            <file>file:/D:/ProjectJava/Netbeans/GaG-Etudiants/src/com/gag/component/Bottom.java</file>
         </group>
     </open-files>
 </project-private>
