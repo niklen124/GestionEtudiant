@@ -5,8 +5,12 @@ public class Message extends javax.swing.JPanel {
     public Message() {
         initComponents();
         setOpaque(false);
+        init();
     }
 
+    private void init() {
+    
+    }
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {

@@ -1,5 +1,8 @@
 package com.gag.main;
 
+import com.formdev.flatlaf.FlatLaf;
+import com.formdev.flatlaf.fonts.roboto.FlatRobotoFont;
+import com.formdev.flatlaf.themes.FlatMacLightLaf;
 import com.gag.component.Menu;
 import com.gag.event.EventMenuSelected;
 import com.gag.form.Message;
@@ -8,14 +11,18 @@ import com.gag.model.ModelMenu;
 import com.gag.model.ModelUser;
 import java.awt.BorderLayout;
 import java.awt.Component;
+import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import javax.swing.ImageIcon;
 import javax.swing.JPanel;
+import javax.swing.UIManager;
 import net.miginfocom.swing.MigLayout;
 import org.jdesktop.animation.timing.Animator;
 import org.jdesktop.animation.timing.TimingTarget;
 import org.jdesktop.animation.timing.TimingTargetAdapter;
+import raven.popup.GlassPanePopup;
+import raven.toast.Notifications;
 
 
 public class MainSystem extends javax.swing.JFrame {
@@ -33,7 +40,9 @@ public class MainSystem extends javax.swing.JFrame {
     }
     
     private void init() {
-        layout = new MigLayout("fill", "0[]10[]0", "0[fill]0");
+        GlassPanePopup.install(this);
+        Notifications.getInstance().setJFrame(this);
+        layout = new MigLayout("fill", "0[]10[]5", "0[fill]0");
         body.setLayout(layout);
         mainSystem.setOpaque(false);
         mainSystem.setLayout(new BorderLayout());
@@ -69,9 +78,10 @@ public class MainSystem extends javax.swing.JFrame {
         });
         menu.addMenu(new ModelMenu("Profile", new ImageIcon(getClass().getResource("/com/gag/icon/userS.png"))));
         menu.addMenu(new ModelMenu("Message", new ImageIcon(getClass().getResource("/com/gag/icon/message.png"))));
-        menu.addMenu(new ModelMenu("Report", new ImageIcon(getClass().getResource("/com/gag/icon/report.png"))));
-        menu.addMenu(new ModelMenu("Setting", new ImageIcon(getClass().getResource("/com/gag/icon/setting.png"))));
-        menu.addMenu(new ModelMenu("Key", new ImageIcon(getClass().getResource("/com/gag/icon/key.png"))));
+        if (user.isAdmin()) {
+            menu.addMenu(new ModelMenu("Rapports", new ImageIcon(getClass().getResource("/com/gag/icon/report.png"))));
+        }
+        menu.addMenu(new ModelMenu("Paramètres", new ImageIcon(getClass().getResource("/com/gag/icon/setting.png"))));
         body.add(menu, "w 50!");
         body.add(mainSystem, "w 100%");
         TimingTarget target = new TimingTargetAdapter() {
@@ -122,7 +132,7 @@ public class MainSystem extends javax.swing.JFrame {
         body.setLayout(bodyLayout);
         bodyLayout.setHorizontalGroup(
             bodyLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 1071, Short.MAX_VALUE)
+            .addGap(0, 1046, Short.MAX_VALUE)
         );
         bodyLayout.setVerticalGroup(
             bodyLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -146,30 +156,11 @@ public class MainSystem extends javax.swing.JFrame {
 
     
     public static void main(ModelUser user) {
-        /* Set the Nimbus look and feel */
-        //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
-        /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
-         * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html 
-         */
-        try {
-            for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
-                if ("Nimbus".equals(info.getName())) {
-                    javax.swing.UIManager.setLookAndFeel(info.getClassName());
-                    break;
-                }
-            }
-        } catch (ClassNotFoundException ex) {
-            java.util.logging.Logger.getLogger(MainSystem.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (InstantiationException ex) {
-            java.util.logging.Logger.getLogger(MainSystem.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (IllegalAccessException ex) {
-            java.util.logging.Logger.getLogger(MainSystem.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (javax.swing.UnsupportedLookAndFeelException ex) {
-            java.util.logging.Logger.getLogger(MainSystem.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        }
-        //</editor-fold>
-
-        /* Create and display the form */
+        FlatRobotoFont.install();
+        FlatLaf.registerCustomDefaultsSource("com.gag.themes");
+        UIManager.put("defaultFont", new Font(FlatRobotoFont.FAMILY, Font.PLAIN, 13));
+        FlatMacLightLaf.setup();
+        
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
                 new MainSystem(user).setVisible(true);
