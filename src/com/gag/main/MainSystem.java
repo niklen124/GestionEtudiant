@@ -5,8 +5,15 @@ import com.formdev.flatlaf.fonts.roboto.FlatRobotoFont;
 import com.formdev.flatlaf.themes.FlatMacLightLaf;
 import com.gag.component.Menu;
 import com.gag.event.EventMenuSelected;
+import com.gag.form.Accueil;
+import com.gag.form.DepartementFiliere;
+import com.gag.form.Enseignants;
+import com.gag.form.Etudiants;
 import com.gag.form.Message;
-import com.gag.form.Profile;
+import com.gag.form.SaisirNotes;
+import com.gag.form.User;
+import com.gag.form.Setting;
+import com.gag.form.UeModule;
 import com.gag.model.ModelMenu;
 import com.gag.model.ModelUser;
 import java.awt.BorderLayout;
@@ -33,6 +40,8 @@ public class MainSystem extends javax.swing.JFrame {
     private MigLayout layout;
     private Animator animator;
     private boolean menuShow;
+    //private ServiceEnseignant serviceEnseignant = new ServiceEnseignant();
+    
     public MainSystem(ModelUser user) {
         this.user = user;
         initComponents();
@@ -70,18 +79,59 @@ public class MainSystem extends javax.swing.JFrame {
             @Override
             public void selected(int index) {
                 if (index == 0) {
-                    showForm(new Profile());
+                    showForm(new Accueil());
                 } else if (index == 1) {
                     showForm(new Message());
+                } else if (index == 2) {
+                    showForm(new Setting());
+                } else if (user.isAdmin()) {
+                    // Gestion des menus spécifiques à l'admin
+                    int adminIndex = index - 3; // Décalage pour les menus admin
+                    switch (adminIndex) {
+                        case 0 -> showForm(new User());
+                        case 1 -> showForm(new Etudiants());
+                        case 2 -> showForm(new Enseignants());
+                        case 3 -> showForm(new DepartementFiliere());
+                        case 4 -> showForm(new UeModule());
+                        case 5 -> showForm(new SaisirNotes());
+                        case 6 -> showForm(new Setting());
+                        default -> System.out.println("Index non géré pour admin : " + index);
+                    }
+                } else if (user.isEnseignant()) {
+                    // Gestion des menus spécifiques à l'enseignant
+                    int enseignantIndex = index - 3; // Décalage pour les menus enseignant
+                    switch (enseignantIndex) {
+                        case 0 -> showForm(new UeModule());
+                        case 1 -> showForm(new SaisirNotes());
+                        default -> System.out.println("Index non géré pour enseignant : " + index);
+                    }
+                } else {
+                    System.out.println("Index non géré pour utilisateur simple : " + index);
                 }
             }
         });
-        menu.addMenu(new ModelMenu("Profile", new ImageIcon(getClass().getResource("/com/gag/icon/userS.png"))));
+
+        // Ajout des menus dynamiques
+        menu.addMenu(new ModelMenu("Accueil", new ImageIcon(getClass().getResource("/com/gag/icon/userS.png"))));
         menu.addMenu(new ModelMenu("Message", new ImageIcon(getClass().getResource("/com/gag/icon/message.png"))));
-        if (user.isAdmin()) {
-            menu.addMenu(new ModelMenu("Rapports", new ImageIcon(getClass().getResource("/com/gag/icon/report.png"))));
-        }
         menu.addMenu(new ModelMenu("Paramètres", new ImageIcon(getClass().getResource("/com/gag/icon/setting.png"))));
+
+        // Ajout des menus spécifiques à l'administrateur (à la fin)
+        if (user.isAdmin()) {
+            menu.addMenu(new ModelMenu("Users", new ImageIcon(getClass().getResource("/com/gag/icon/userS.png"))));
+            menu.addMenu(new ModelMenu("Etudiants", new ImageIcon(getClass().getResource("/com/gag/icon/report.png"))));
+            menu.addMenu(new ModelMenu("Enseignants", new ImageIcon(getClass().getResource("/com/gag/icon/report.png"))));
+            menu.addMenu(new ModelMenu("Département / Filière", new ImageIcon(getClass().getResource("/com/gag/icon/report.png"))));
+            menu.addMenu(new ModelMenu("UE / Module", new ImageIcon(getClass().getResource("/com/gag/icon/report.png"))));
+            menu.addMenu(new ModelMenu("Saisir Notes", new ImageIcon(getClass().getResource("/com/gag/icon/report.png"))));
+        } else if (user.isEnseignant()) {
+            // Ajout des menus spécifiques à l'enseignant
+            menu.addMenu(new ModelMenu("UE / Module", new ImageIcon(getClass().getResource("/com/gag/icon/report.png"))));
+            menu.addMenu(new ModelMenu("Saisir Notes", new ImageIcon(getClass().getResource("/com/gag/icon/report.png"))));
+        }
+
+
+
         body.add(menu, "w 50!");
         body.add(mainSystem, "w 100%");
         TimingTarget target = new TimingTargetAdapter() {
@@ -89,10 +139,12 @@ public class MainSystem extends javax.swing.JFrame {
             public void timingEvent(float fraction) {
                 double width;
                 if (menuShow) {
+                    // Réduction du menu
                     width = 50 + (150 * (1f - fraction));
                     menu.setAlpha(1f - fraction);
                 } else {
-                    width = 50 + (150 * fraction);
+                    // Élargissement du menu
+                    width = 50 + (170 * fraction);
                     menu.setAlpha(fraction);
                 }
                 layout.setComponentConstraints(menu, "w " + width + "!");
@@ -101,19 +153,19 @@ public class MainSystem extends javax.swing.JFrame {
 
             @Override
             public void end() {
-                menuShow = !menuShow;
+                menuShow = !menuShow; // Inverse l'état du menu (ouvert/fermé)
             }
         };
         animator = new Animator(400, target);
         animator.setResolution(0);
         animator.setAcceleration(0.5f);
         animator.setDeceleration(0.5f);
-        showForm(new Profile());
+        showForm(new Accueil());
     }
 
     private void showForm(Component com) {
         mainSystem.removeAll();
-        mainSystem.add(com);
+        mainSystem.add(com, BorderLayout.CENTER);
         mainSystem.repaint();
         mainSystem.revalidate();
     }
@@ -132,7 +184,7 @@ public class MainSystem extends javax.swing.JFrame {
         body.setLayout(bodyLayout);
         bodyLayout.setHorizontalGroup(
             bodyLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 1046, Short.MAX_VALUE)
+            .addGap(0, 1200, Short.MAX_VALUE)
         );
         bodyLayout.setVerticalGroup(
             bodyLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)

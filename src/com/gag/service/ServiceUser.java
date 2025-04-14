@@ -57,6 +57,28 @@ public class ServiceUser {
         p.close();
     }
 
+    public void updateUser(ModelUser user) throws SQLException {
+        PreparedStatement p = con.prepareStatement(
+            "UPDATE users SET userName = ?, email = ?, password = ?, userType = ? WHERE userID = ?"
+        );
+        p.setString(1, user.getUserName());
+        p.setString(2, user.getEmail());
+        p.setString(3, user.getPassword());
+        p.setString(4, user.getUserType());
+        p.setInt(5, user.getUserID());
+        p.execute();
+        p.close();
+    }
+
+    public void deleteUser(int userID) throws SQLException {
+        PreparedStatement p = con.prepareStatement(
+            "DELETE FROM users WHERE userID = ?"
+        );
+        p.setInt(1, userID);
+        p.execute();
+        p.close();
+    }
+
     public boolean checkDuplicateUser(String user) throws SQLException {
         boolean duplicate = false;
         PreparedStatement p = con.prepareStatement(
@@ -103,6 +125,35 @@ public class ServiceUser {
                     r.getString("userType")
                 );
                 users.add(user);
+            }
+        }
+        return users;
+    }
+
+    public List<ModelUser> search(String search) throws SQLException {
+        List<ModelUser> users = new ArrayList<>();
+        String query = "SELECT userID, userName, email, userType FROM users WHERE (userName LIKE ? OR email LIKE ? OR userType LIKE ?)";
+
+        try (PreparedStatement p = con.prepareStatement(query)) {
+            // Définir les paramètres pour la recherche
+            String searchPattern = "%" + search + "%";
+            p.setString(1, searchPattern);
+            p.setString(2, searchPattern);
+            p.setString(3, searchPattern);
+
+            // Exécuter la requête
+            try (ResultSet r = p.executeQuery()) {
+                while (r.next()) {
+                    // Créer un objet ModelUser pour chaque résultat
+                    ModelUser user = new ModelUser(
+                        r.getInt("userID"),
+                        r.getString("userName"),
+                        r.getString("email"),
+                        "", // Vous pouvez ignorer le mot de passe ici
+                        r.getString("userType")
+                    );
+                    users.add(user);
+                }
             }
         }
         return users;

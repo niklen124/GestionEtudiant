@@ -3,15 +3,15 @@ package com.gag.model;
 public class ModelFiliere {
     private int filiereId;
     private String name;
-    private int departementId;
+    private ModelDepartement departement;
 
     public ModelFiliere() {
     }
 
-    public ModelFiliere(int filiereId, String name, int departementId) {
+    public ModelFiliere(int filiereId, String name, ModelDepartement departement) {
         this.filiereId = filiereId;
         this.name = name;
-        this.departementId = departementId;
+        this.departement = departement;
     }
 
     public int getFiliereId() {
@@ -30,11 +30,15 @@ public class ModelFiliere {
         this.name = name;
     }
 
-    public int getDepartementId() {
-        return departementId;
+    public ModelDepartement getDepartement() {
+        return departement;
     }
 
-    public void setDepartementId(int departementId) {
-        this.departementId = departementId;
+    public void setDepartement (ModelDepartement departement) {
+        if (departement == null || departement.getName().isEmpty()) {
+            throw new IllegalArgumentException("Le département est invalide.");
+        }
+        this.departement = departement;
     }
-} 
+    
+}

@@ -2,7 +2,8 @@ package com.gag.model;
 
 public class ModelUser {
     public static final String ADMIN = "admin";
-    public static final String USER = "user";
+    public static final String ENSEIGNANT = "enseignant";
+    public static final String ETUDIANT = "etudiant";
 
     private int userID;
     private String userName;
@@ -19,7 +20,7 @@ public class ModelUser {
     }
 
     public ModelUser() {
-        this.userType = USER; // Par défaut, un nouvel utilisateur est un utilisateur normal
+        this.userType = ETUDIANT; // Par défaut, un nouvel utilisateur est un étudiant
     }
 
     public int getUserID() {
@@ -64,5 +65,9 @@ public class ModelUser {
 
     public boolean isAdmin() {
         return ADMIN.equals(userType);
+    }
+
+    public boolean isEnseignant() {
+        return ENSEIGNANT.equals(userType);
     }
 }

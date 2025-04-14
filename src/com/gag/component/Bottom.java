@@ -23,6 +23,7 @@ public class Bottom extends javax.swing.JPanel {
         setOpaque(false);
         setBackground(new Color(65, 152, 216));
         lbUser.setText(user.getUserName());
+        lbState.setText(user.getUserType());
     }
 
     @SuppressWarnings("unchecked")

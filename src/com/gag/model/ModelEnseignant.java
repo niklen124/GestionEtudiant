@@ -6,18 +6,18 @@ public class ModelEnseignant {
     private String userName;
     private String email;
     private String grade;
-    private int departementId;
+    private ModelDepartement departement;
 
     public ModelEnseignant() {
     }
 
-    public ModelEnseignant(int enseignantId, String name, String userName, String email, String grade, int departementId) {
+    public ModelEnseignant(int enseignantId, String name, String userName, String email, String grade, ModelDepartement departement) {
         this.enseignantId = enseignantId;
         this.name = name;
         this.userName = userName;
         this.email = email;
         this.grade = grade;
-        this.departementId = departementId;
+        this.departement = departement;
     }
 
     public int getEnseignantId() {
@@ -60,11 +60,20 @@ public class ModelEnseignant {
         this.grade = grade;
     }
 
-    public int getDepartementId() {
-        return departementId;
+    public ModelDepartement getDepartement() {
+        return departement;
     }
 
-    public void setDepartementId(int departementId) {
-        this.departementId = departementId;
+    public void setDepartement (ModelDepartement departement) {
+        this.departement = departement;
+    }
+    
+    public Object[]toTableRow(int rowNum) {
+        return new Object[]{false,rowNum,this,userName,email,grade,departement};
+    }
+    
+    @Override
+    public String toString() {
+        return name;
     }
 } 

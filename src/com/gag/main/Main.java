@@ -127,7 +127,9 @@ public class Main extends javax.swing.JFrame {
                 showMessage(Message.MessageType.ERROR, "Email already exists");
             } else {
                 service.insertUser(user);
-                showMessage(Message.MessageType.SUCCESS, "User registered successfully!");
+                //showMessage(Message.MessageType.SUCCESS, "User registered successfully!");
+                this.dispose();
+                MainSystem.main(user);
             }
         } catch (SQLException e) {
             e.printStackTrace(); // Affiche l'erreur dans la console
