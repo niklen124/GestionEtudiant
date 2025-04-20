@@ -3,20 +3,29 @@ package com.gag.form;
 import com.formdev.flatlaf.FlatClientProperties;
 import com.formdev.flatlaf.extras.FlatSVGIcon;
 import com.gag.component.CreateEtudiant;
-import com.gag.component.CreateUser;
+import com.gag.model.ModelEtudiant;
+import com.gag.service.ServiceEtudiant;
 import com.gag.table.CheckBoxTableHeaderRenderer;
 import com.gag.table.TableHeaderAlignment;
-import javax.swing.table.DefaultTableModel;
+import java.util.ArrayList;
 import raven.popup.DefaultOption;
 import raven.popup.GlassPanePopup;
 import raven.popup.component.SimplePopupBorder;
+import raven.toast.Notifications;
+
+import javax.swing.table.DefaultTableModel;
+import java.util.List;
+import javax.swing.JLabel;
 
 public class Etudiants extends javax.swing.JPanel {
+    
+    private ServiceEtudiant serviceEtudiant = new ServiceEtudiant();
 
     public Etudiants() {
         initComponents();
         setOpaque(false);
         init();
+        loadData();
     }
     
     private void init() {
@@ -62,41 +71,92 @@ public class Etudiants extends javax.swing.JPanel {
         
         etudiantTable.getColumnModel().getColumn(0).setHeaderRenderer(new CheckBoxTableHeaderRenderer(etudiantTable, 0));
         etudiantTable.getTableHeader().setDefaultRenderer(new TableHeaderAlignment(etudiantTable));
-        //   userTable.getColumnModel().getColumn(2).setCellRenderer(new ProfileTableRenderer(userTable));
-        
-        testData();
-        /*DefaultTableModel model = (DefaultTableModel) userTable.getModel();
-        ServiceUser serviceUser = new ServiceUser(); // Instanciez votre service utilisateur
-
-        try {
-            List<ModelUser> users = serviceUser.getAllUsers(); // Récupérez les utilisateurs
-
-            for (ModelUser user : users) {
-                model.addRow(new Object[]{
-                    user.getUserID(),
-                    user.getUserName(),
-                    user.getEmail(),
-                    user.isAdmin() ? "Admin" : "User" // Affiche "Admin" ou "User" selon le type
-                });
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }*/
     }
     
-    private void testData() {
+    private void loadData() {
+        try {
+            List<ModelEtudiant> etudiants = serviceEtudiant.getAllEtudiant();
+            DefaultTableModel model = (DefaultTableModel) etudiantTable.getModel();
+            model.setRowCount(0); // Réinitialiser le tableau
+
+            for (ModelEtudiant etudiant : etudiants) {
+                model.addRow(new Object[] {
+                    false, // Checkbox
+                    etudiant.getMatricule(),
+                    etudiant.getName(),
+                    etudiant.getUserName(),
+                    etudiant.getEmail(),
+                    etudiant.getTelephone(),
+                    etudiant.getDateNaissance(),
+                    etudiant.getAnneeUniversitaire().getLibelle(),
+                    etudiant.getFiliere().getName(),
+                    etudiant.getEtudiantId() // Ajouter l'ID dans la colonne cachée
+                });
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            Notifications.getInstance().show(Notifications.Type.ERROR, "Erreur lors du chargement des données.");
+        }
+    }
+
+    private void searchData(String search) {
+        try {
+            DefaultTableModel model = (DefaultTableModel) etudiantTable.getModel();
+
+            // Arrêter l'édition si le tableau est en mode édition
+            if (etudiantTable.isEditing()) {
+                etudiantTable.getCellEditor().stopCellEditing();
+            }
+
+            // Effacer les anciennes données
+            model.setRowCount(0);
+
+            // Récupérer les étudiants via le service
+            List<ModelEtudiant> list = serviceEtudiant.searchEtudiant(search);
+            for (ModelEtudiant etudiant : list) {
+                model.addRow(new Object[] {
+                    false, // Checkbox
+                    etudiant.getMatricule(),
+                    etudiant.getName(),
+                    etudiant.getUserName(),
+                    etudiant.getEmail(),
+                    etudiant.getTelephone(),
+                    etudiant.getDateNaissance(),
+                    etudiant.getAnneeUniversitaire().getLibelle(),
+                    etudiant.getFiliere().getName()
+                });
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            Notifications.getInstance().show(Notifications.Type.ERROR, "Erreur lors de la recherche des étudiants.");
+        }
+    }
+
+    private List<ModelEtudiant> getSelectedData() {
+        List<ModelEtudiant> selectedEtudiants = new ArrayList<>();
         DefaultTableModel model = (DefaultTableModel) etudiantTable.getModel();
-        model.addRow(new Object[]{false, 1, "Jonh china", "Male", "30", "Jonh00001@gmail.com"});
-        model.addRow(new Object[]{false, 2, "Jonh china", "Male", "30", "Jonh00001@gmail.com"});
-        model.addRow(new Object[]{false, 3, "Jonh china", "Male", "30", "Jonh00001@gmail.com"});
-        model.addRow(new Object[]{false, 4, "Jonh china", "Male", "30", "Jonh00001@gmail.com"});
-        model.addRow(new Object[]{false, 5, "Jonh china", "Male", "30", "Jonh00001@gmail.com"});
-        model.addRow(new Object[]{false, 6, "Jonh china", "Male", "30", "Jonh00001@gmail.com"});
-        model.addRow(new Object[]{false, 7, "Jonh china", "Male", "30", "Jonh00001@gmail.com"});
-        model.addRow(new Object[]{false, 8, "Jonh china", "Male", "30", "Jonh00001@gmail.com"});
-        model.addRow(new Object[]{false, 9, "Jonh china", "Male", "30", "Jonh00001@gmail.com"});
-        model.addRow(new Object[]{false, 10, "Jonh china", "Male", "30", "Jonh00001@gmail.com"});
-        model.addRow(new Object[]{false, 11, "Jonh china", "Male", "30", "Jonh00001@gmail.com"}); 
+
+        for (int i = 0; i < model.getRowCount(); i++) {
+            Boolean isSelected = (Boolean) model.getValueAt(i, 0); // Vérifier si la case à cocher est sélectionnée
+            if (isSelected != null && isSelected) {
+                // Récupérer l'ID de l'étudiant depuis une colonne cachée ou une autre source
+                int etudiantId = (int) model.getValueAt(i, 9); // Assurez-vous que l'ID est dans la colonne 9 (ou une autre colonne appropriée)
+                ModelEtudiant etudiant = new ModelEtudiant(
+                    etudiantId, // Utiliser l'ID correct
+                    (String) model.getValueAt(i, 1), // Matricule
+                    (String) model.getValueAt(i, 2), // Nom
+                    (String) model.getValueAt(i, 3), // Prénom
+                    (String) model.getValueAt(i, 4), // Email
+                    (String) model.getValueAt(i, 5), // Téléphone
+                    (java.sql.Date) model.getValueAt(i, 6), // Date de naissance
+                    null, // Sexe (ajoutez si nécessaire)
+                    null, // Année universitaire (ajoutez si nécessaire)
+                    null  // Filière (ajoutez si nécessaire)
+                );
+                selectedEtudiants.add(etudiant);
+            }
+        }
+        return selectedEtudiants;
     }
 
     @SuppressWarnings("unchecked")
@@ -122,7 +182,7 @@ public class Etudiants extends javax.swing.JPanel {
 
             },
             new String [] {
-                "Select", "#", "Matricule", "Nom", "Prenom", "Email", "Téléphone", "Date Naissance", "Année Scolaire", "Filliere"
+                "Select", "Matricule", "Nom", "Prenom", "Email", "Téléphone", "Date Naissance", "Année Scolaire", "Filliere", "ID"
             }
         ) {
             Class[] types = new Class [] {
@@ -144,20 +204,30 @@ public class Etudiants extends javax.swing.JPanel {
         scroll.setViewportView(etudiantTable);
         if (etudiantTable.getColumnModel().getColumnCount() > 0) {
             etudiantTable.getColumnModel().getColumn(0).setMaxWidth(50);
-            etudiantTable.getColumnModel().getColumn(1).setMaxWidth(40);
-            etudiantTable.getColumnModel().getColumn(2).setMaxWidth(100);
-            etudiantTable.getColumnModel().getColumn(3).setMaxWidth(150);
-            etudiantTable.getColumnModel().getColumn(4).setMaxWidth(250);
-            etudiantTable.getColumnModel().getColumn(5).setMaxWidth(400);
+            etudiantTable.getColumnModel().getColumn(1).setMaxWidth(100);
+            etudiantTable.getColumnModel().getColumn(2).setMaxWidth(150);
+            etudiantTable.getColumnModel().getColumn(3).setMaxWidth(450);
+            etudiantTable.getColumnModel().getColumn(4).setMaxWidth(400);
+            etudiantTable.getColumnModel().getColumn(5).setMaxWidth(200);
+            etudiantTable.getColumnModel().getColumn(6).setPreferredWidth(80);
             etudiantTable.getColumnModel().getColumn(6).setMaxWidth(200);
+            etudiantTable.getColumnModel().getColumn(7).setPreferredWidth(80);
             etudiantTable.getColumnModel().getColumn(7).setMaxWidth(150);
-            etudiantTable.getColumnModel().getColumn(8).setMaxWidth(100);
-            etudiantTable.getColumnModel().getColumn(9).setMaxWidth(150);
+            etudiantTable.getColumnModel().getColumn(8).setPreferredWidth(100);
+            etudiantTable.getColumnModel().getColumn(8).setMaxWidth(150);
+            etudiantTable.getColumnModel().getColumn(9).setMinWidth(0);
+            etudiantTable.getColumnModel().getColumn(9).setPreferredWidth(0);
+            etudiantTable.getColumnModel().getColumn(9).setMaxWidth(0);
         }
 
         txtSearch.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 txtSearchActionPerformed(evt);
+            }
+        });
+        txtSearch.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyReleased(java.awt.event.KeyEvent evt) {
+                txtSearchKeyReleased(evt);
             }
         });
 
@@ -189,24 +259,25 @@ public class Etudiants extends javax.swing.JPanel {
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addGap(43, 43, 43)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(layout.createSequentialGroup()
-                        .addComponent(lbTitle)
-                        .addGap(0, 0, Short.MAX_VALUE))
-                    .addComponent(txtSearch, javax.swing.GroupLayout.PREFERRED_SIZE, 195, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(328, 328, 328)
-                .addComponent(cmdNew, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(18, 18, 18)
-                .addComponent(cmdEdit, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(18, 18, 18)
-                .addComponent(cmdDelete, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(58, 58, 58))
-            .addGroup(layout.createSequentialGroup()
-                .addGap(30, 30, 30)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                    .addComponent(jSeparator1)
-                    .addComponent(scroll, javax.swing.GroupLayout.DEFAULT_SIZE, 808, Short.MAX_VALUE))
+                    .addGroup(layout.createSequentialGroup()
+                        .addGap(43, 43, 43)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(lbTitle)
+                            .addGroup(layout.createSequentialGroup()
+                                .addComponent(txtSearch, javax.swing.GroupLayout.PREFERRED_SIZE, 195, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .addComponent(cmdNew, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addGap(18, 18, 18)
+                                .addComponent(cmdEdit, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addGap(18, 18, 18)
+                                .addComponent(cmdDelete, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addGap(13, 13, 13))))
+                    .addGroup(layout.createSequentialGroup()
+                        .addGap(30, 30, 30)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(jSeparator1, javax.swing.GroupLayout.PREFERRED_SIZE, 903, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(scroll, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE))))
                 .addGap(30, 30, 30))
         );
         layout.setVerticalGroup(
@@ -221,7 +292,7 @@ public class Etudiants extends javax.swing.JPanel {
                     .addComponent(cmdDelete, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(cmdEdit, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(jSeparator1, javax.swing.GroupLayout.PREFERRED_SIZE, 3, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(jSeparator1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(scroll, javax.swing.GroupLayout.PREFERRED_SIZE, 303, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(30, 30, 30))
@@ -233,11 +304,52 @@ public class Etudiants extends javax.swing.JPanel {
     }//GEN-LAST:event_txtSearchActionPerformed
 
     private void cmdEditActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cmdEditActionPerformed
-        // TODO add your handling code here:
+        List<ModelEtudiant> list = getSelectedData(); // Récupérer les étudiants sélectionnés
+        if (!list.isEmpty()) {
+            if (list.size() == 1) {
+                ModelEtudiant etudiant = list.get(0); // Récupérer l'étudiant sélectionné
+                CreateEtudiant createEtudiant = new CreateEtudiant();
+                createEtudiant.loadData(serviceEtudiant, etudiant); // Charger les données nécessaires (filières, années scolaires, etc.)
+                createEtudiant.setData(etudiant); // Charger les données de l'étudiant dans le formulaire
+
+                DefaultOption option = new DefaultOption() {
+                    @Override
+                    public boolean closeWhenClickOutside() {
+                        return true;
+                    }
+                };
+
+                String actions[] = new String[]{"Cancel", "Update"};
+                GlassPanePopup.showPopup(new SimplePopupBorder(createEtudiant, "Edit Étudiant [" + etudiant.getName() + "]", actions, (pc, i) -> {
+                    if (i == 1) { // Si l'utilisateur clique sur "Update"
+                        try {
+                            ModelEtudiant dataEdit = createEtudiant.getData(); // Récupérer les données mises à jour
+                            if (dataEdit != null) {
+                                dataEdit.setEtudiantId(etudiant.getEtudiantId()); // Conserver l'ID de l'étudiant
+                                serviceEtudiant.editEtudiant(dataEdit); // Mettre à jour l'étudiant dans la base de données
+                                pc.closePopup();
+                                Notifications.getInstance().show(Notifications.Type.SUCCESS, "Étudiant a été modifié avec succès.");
+                                loadData(); // Recharger les données dans le tableau
+                            }
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                            Notifications.getInstance().show(Notifications.Type.ERROR, "Erreur lors de la modification de l'étudiant.");
+                        }
+                    } else {
+                        pc.closePopup(); // Fermer le popup si "Cancel" est cliqué
+                    }
+                }), option);
+            } else {
+                Notifications.getInstance().show(Notifications.Type.WARNING, "Veuillez sélectionner un seul étudiant.");
+            }
+        } else {
+            Notifications.getInstance().show(Notifications.Type.WARNING, "Veuillez sélectionner un étudiant à modifier.");
+        }
     }//GEN-LAST:event_cmdEditActionPerformed
 
     private void cmdNewActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cmdNewActionPerformed
-        CreateEtudiant CreateEtudiant = new CreateEtudiant();
+        CreateEtudiant createEtudiant = new CreateEtudiant();
+        createEtudiant.loadData(serviceEtudiant, null); // Charger les données nécessaires (filières, années scolaires, etc.)
         DefaultOption option = new DefaultOption() {
             @Override
             public boolean closeWhenClickOutside() {
@@ -245,10 +357,24 @@ public class Etudiants extends javax.swing.JPanel {
             }
         };
         String actions[] = new String[]{"Cancel", "Save"};
-        GlassPanePopup.showPopup(new SimplePopupBorder(CreateEtudiant, "Create User", actions, (pc, i) -> {
+        GlassPanePopup.showPopup(new SimplePopupBorder(createEtudiant, "Create Etudiant", actions, (pc, i) -> {
             if (i == 1) {
-                // save
-                    
+                // Sauvegarder les données
+                try {
+                    ModelEtudiant data = createEtudiant.getData(); // Récupérer les données saisies
+                    if (data != null) {
+                        // Créer un nouvel étudiant
+                        int etudiantId = serviceEtudiant.createEtudiant(data);
+                        //System.out.println("Étudiant ID : " + etudiantId);
+
+                        pc.closePopup();
+                        Notifications.getInstance().show(Notifications.Type.SUCCESS, "Étudiant a été créé avec succès.");
+                        loadData(); // Recharger les données dans la table
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    Notifications.getInstance().show(Notifications.Type.ERROR, "Erreur lors de la création de l'étudiant.");
+                }
             } else {
                 pc.closePopup();
             }
@@ -256,8 +382,45 @@ public class Etudiants extends javax.swing.JPanel {
     }//GEN-LAST:event_cmdNewActionPerformed
 
     private void cmdDeleteActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cmdDeleteActionPerformed
-        // TODO add your handling code here:
+        List<ModelEtudiant> list = getSelectedData(); // Récupérer les étudiants sélectionnés
+        if (!list.isEmpty()) {
+            DefaultOption option = new DefaultOption() {
+                @Override
+                public boolean closeWhenClickOutside() {
+                    return true;
+                }
+            };
+
+            String actions[] = new String[]{"Cancel", "Delete"};
+            JLabel label = new JLabel("Are you sure to delete " + list.size() + " étudiant(s)?");
+            label.setBorder(new javax.swing.border.EmptyBorder(0, 25, 0, 25));
+
+            GlassPanePopup.showPopup(new SimplePopupBorder(label, "Confirm Delete", actions, (pc, i) -> {
+                if (i == 1) { // Si l'utilisateur clique sur "Delete"
+                    try {
+                        for (ModelEtudiant etudiant : list) {
+                            System.out.println("Suppression de l'étudiant avec ID : " + etudiant.getEtudiantId()); // Log pour vérifier l'ID
+                            serviceEtudiant.deleteEtudiant(etudiant.getEtudiantId()); // Supprimer l'étudiant
+                        }
+                        pc.closePopup();
+                        Notifications.getInstance().show(Notifications.Type.SUCCESS, "Étudiant(s) supprimé(s) avec succès.");
+                        loadData(); // Recharger les données dans le tableau
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                        Notifications.getInstance().show(Notifications.Type.ERROR, "Erreur lors de la suppression des étudiants.");
+                    }
+                } else {
+                    pc.closePopup(); // Fermer le popup si "Cancel" est cliqué
+                }
+            }), option);
+        } else {
+            Notifications.getInstance().show(Notifications.Type.WARNING, "Veuillez sélectionner un ou plusieurs étudiants à supprimer.");
+        }
     }//GEN-LAST:event_cmdDeleteActionPerformed
+
+    private void txtSearchKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txtSearchKeyReleased
+        searchData(txtSearch.getText().trim());
+    }//GEN-LAST:event_txtSearchKeyReleased
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables

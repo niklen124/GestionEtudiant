@@ -4,18 +4,18 @@ public class ModelUE {
     private int ueId;
     private String code;
     private String name;
-    private int semestreId;
-    private int filiereId;
+    private ModelSemestre semestre;
+    private ModelFiliere filiere;
 
     public ModelUE() {
     }
 
-    public ModelUE(int ueId, String code, String name, int semestreId, int filiereId) {
+    public ModelUE(int ueId, String code, String name, ModelSemestre semestre, ModelFiliere filiere) {
         this.ueId = ueId;
         this.code = code;
         this.name = name;
-        this.semestreId = semestreId;
-        this.filiereId = filiereId;
+        this.semestre = semestre;
+        this.filiere = filiere;
     }
 
     public int getUeId() {
@@ -42,19 +42,19 @@ public class ModelUE {
         this.name = name;
     }
 
-    public int getSemestreId() {
-        return semestreId;
+    public ModelSemestre getSemestre() {
+        return semestre;
     }
 
-    public void setSemestreId(int semestreId) {
-        this.semestreId = semestreId;
+    public void setSemestre(ModelSemestre semestre) {
+        this.semestre = semestre;
     }
 
-    public int getFiliereId() {
-        return filiereId;
+    public ModelFiliere getFiliere() {
+        return filiere;
     }
 
-    public void setFiliereId(int filiereId) {
-        this.filiereId = filiereId;
+    public void setFiliere(ModelFiliere filiere) {
+        this.filiere = filiere;
     }
 } 

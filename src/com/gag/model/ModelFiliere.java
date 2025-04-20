@@ -1,5 +1,7 @@
 package com.gag.model;
 
+import java.util.Objects;
+
 public class ModelFiliere {
     private int filiereId;
     private String name;
@@ -40,5 +42,22 @@ public class ModelFiliere {
         }
         this.departement = departement;
     }
+
+    @Override
+    public String toString() {
+        return name;
+    }
     
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) return true;
+        if (obj == null || getClass() != obj.getClass()) return false;
+        ModelFiliere that = (ModelFiliere) obj;
+        return filiereId == that.filiereId;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(filiereId);
+    }
 }

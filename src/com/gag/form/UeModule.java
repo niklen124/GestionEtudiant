@@ -2,8 +2,7 @@ package com.gag.form;
 
 import com.formdev.flatlaf.FlatClientProperties;
 import com.formdev.flatlaf.extras.FlatSVGIcon;
-import com.gag.component.CreateEtudiant;
-import com.gag.component.CreateUser;
+import com.gag.component.CreateModuleUE;
 import com.gag.table.CheckBoxTableHeaderRenderer;
 import com.gag.table.TableHeaderAlignment;
 import javax.swing.table.DefaultTableModel;
@@ -12,15 +11,11 @@ import raven.popup.GlassPanePopup;
 import raven.popup.component.SimplePopupBorder;
 import java.util.List;
 import com.gag.service.ServiceModule;
-import com.gag.service.ServiceEnseignant;
-import com.gag.service.ServiceUE;
-import com.gag.service.ServiceSemestre;
 import com.gag.model.ModelModule;
-import com.gag.model.ModelEnseignant;
-import com.gag.model.ModelUE;
-import com.gag.model.ModelSemestre;
 
 public class UeModule extends javax.swing.JPanel {
+
+    ServiceModule serviceModule = new ServiceModule();
 
     public UeModule() {
         initComponents();
@@ -75,7 +70,39 @@ public class UeModule extends javax.swing.JPanel {
     }
     
     private void loadData() {
-        
+        try {
+            DefaultTableModel model = (DefaultTableModel) ueModuleTable.getModel();
+
+            // Arrêter l'édition si le tableau est en mode édition
+            if (ueModuleTable.isEditing()) {
+                ueModuleTable.getCellEditor().stopCellEditing();
+            }
+
+            // Effacer les anciennes données
+            model.setRowCount(0);
+
+            // Récupérer les modules via le service
+            ServiceModule serviceModule = new ServiceModule();
+            List<ModelModule> modules = serviceModule.getAllModules();
+
+            // Parcourir les modules et ajouter les données au tableau
+            for (ModelModule module : modules) {
+                model.addRow(new Object[]{
+                    false, // Checkbox non cochée par défaut
+                    module.getEnseignant().getName(), // Nom de l'enseignant
+                    module.getCode(), // Code du module
+                    module.getName(), // Nom du module
+                    module.getUe().getCode(), // Code de l'UE
+                    module.getUe().getName(), // Nom de l'UE
+                    module.getUe().getFiliere().getName(),
+                    module.getUe().getFiliere().getDepartement().getName(), // Nom du département
+                    module.getUe().getSemestre().getName() // Nom du semestre
+                });
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     @SuppressWarnings("unchecked")
@@ -101,14 +128,14 @@ public class UeModule extends javax.swing.JPanel {
 
             },
             new String [] {
-                "Select", "Nom de l'Enseignant", "Code du Module", "Nom du Module", "Code de Ue", "Nom de Ue", "Séméstre"
+                "Select", "Nom de l'Enseignant", "Code du Module", "Nom du Module", "Code de Ue", "Nom de Ue", "Filiere", "Departements", "Séméstre"
             }
         ) {
             Class[] types = new Class [] {
-                java.lang.Boolean.class, java.lang.Object.class, java.lang.Object.class, java.lang.Object.class, java.lang.Object.class, java.lang.Object.class, java.lang.Object.class
+                java.lang.Boolean.class, java.lang.Object.class, java.lang.Object.class, java.lang.Object.class, java.lang.Object.class, java.lang.Object.class, java.lang.Object.class, java.lang.Object.class, java.lang.Object.class
             };
             boolean[] canEdit = new boolean [] {
-                true, false, false, false, false, false, false
+                true, false, false, false, false, false, false, false, false
             };
 
             public Class getColumnClass(int columnIndex) {
@@ -123,12 +150,14 @@ public class UeModule extends javax.swing.JPanel {
         scroll.setViewportView(ueModuleTable);
         if (ueModuleTable.getColumnModel().getColumnCount() > 0) {
             ueModuleTable.getColumnModel().getColumn(0).setMaxWidth(50);
-            ueModuleTable.getColumnModel().getColumn(1).setMaxWidth(200);
+            ueModuleTable.getColumnModel().getColumn(1).setMaxWidth(250);
             ueModuleTable.getColumnModel().getColumn(2).setMaxWidth(200);
-            ueModuleTable.getColumnModel().getColumn(3).setMaxWidth(150);
+            ueModuleTable.getColumnModel().getColumn(3).setMaxWidth(400);
             ueModuleTable.getColumnModel().getColumn(4).setMaxWidth(100);
             ueModuleTable.getColumnModel().getColumn(5).setMaxWidth(300);
-            ueModuleTable.getColumnModel().getColumn(6).setMaxWidth(100);
+            ueModuleTable.getColumnModel().getColumn(6).setMaxWidth(200);
+            ueModuleTable.getColumnModel().getColumn(7).setMaxWidth(200);
+            ueModuleTable.getColumnModel().getColumn(8).setMaxWidth(100);
         }
 
         txtSearch.addActionListener(new java.awt.event.ActionListener() {
@@ -180,7 +209,7 @@ public class UeModule extends javax.swing.JPanel {
                                 .addGap(0, 0, Short.MAX_VALUE))
                             .addGroup(layout.createSequentialGroup()
                                 .addComponent(txtSearch, javax.swing.GroupLayout.PREFERRED_SIZE, 195, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 389, Short.MAX_VALUE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 477, Short.MAX_VALUE)
                                 .addComponent(cmdNew, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                                 .addGap(18, 18, 18)
                                 .addComponent(cmdEdit, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -217,7 +246,8 @@ public class UeModule extends javax.swing.JPanel {
     }//GEN-LAST:event_cmdEditActionPerformed
 
     private void cmdNewActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cmdNewActionPerformed
-        CreateEtudiant CreateEtudiant = new CreateEtudiant();
+        CreateModuleUE CreateModuleUE = new CreateModuleUE();
+        CreateModuleUE.loadData(serviceModule);
         DefaultOption option = new DefaultOption() {
             @Override
             public boolean closeWhenClickOutside() {
@@ -225,7 +255,7 @@ public class UeModule extends javax.swing.JPanel {
             }
         };
         String actions[] = new String[]{"Cancel", "Save"};
-        GlassPanePopup.showPopup(new SimplePopupBorder(CreateEtudiant, "Create User", actions, (pc, i) -> {
+        GlassPanePopup.showPopup(new SimplePopupBorder(CreateModuleUE, "Create User", actions, (pc, i) -> {
             if (i == 1) {
                 // save
                     

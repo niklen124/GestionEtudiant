@@ -11,14 +11,14 @@ public class ModelEtudiant {
     private String telephone;
     private Date dateNaissance;
     private String sexe;
-    private int anneeScolaire;
-    private int filiereId;
+    private ModelAnneeUniversitaire anneeUniversitaire;
+    private ModelFiliere filiere;
 
     public ModelEtudiant() {
     }
 
     public ModelEtudiant(int etudiantId, String matricule, String name, String userName, String email, 
-                        String telephone, Date dateNaissance, String sexe, int anneeScolaire, int filiereId) {
+                        String telephone, Date dateNaissance, String sexe, ModelAnneeUniversitaire anneeUniversitaire, ModelFiliere filiere) {
         this.etudiantId = etudiantId;
         this.matricule = matricule;
         this.name = name;
@@ -27,8 +27,8 @@ public class ModelEtudiant {
         this.telephone = telephone;
         this.dateNaissance = dateNaissance;
         this.sexe = sexe;
-        this.anneeScolaire = anneeScolaire;
-        this.filiereId = filiereId;
+        this.anneeUniversitaire = anneeUniversitaire;
+        this.filiere = filiere;
     }
 
     public int getEtudiantId() {
@@ -95,19 +95,19 @@ public class ModelEtudiant {
         this.sexe = sexe;
     }
 
-    public int getAnneeScolaire() {
-        return anneeScolaire;
+    public ModelAnneeUniversitaire getAnneeUniversitaire() {
+        return anneeUniversitaire;
     }
 
-    public void setAnneeScolaire(int anneeScolaire) {
-        this.anneeScolaire = anneeScolaire;
+    public void setAnneeUniversitaire(ModelAnneeUniversitaire anneeUniversitaire) {
+        this.anneeUniversitaire = anneeUniversitaire;
     }
 
-    public int getFiliereId() {
-        return filiereId;
+    public ModelFiliere getFiliere() {
+        return filiere;
     }
 
-    public void setFiliereId(int filiereId) {
-        this.filiereId = filiereId;
+    public void setFiliere(ModelFiliere filiere) {
+        this.filiere = filiere;
     }
 } 

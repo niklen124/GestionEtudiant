@@ -1,6 +1,9 @@
 package com.gag.service;
 
 import com.gag.connection.DatabaseConnection;
+import com.gag.model.ModelDepartement;
+import com.gag.model.ModelFiliere;
+import com.gag.model.ModelSemestre;
 import com.gag.model.ModelUE;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -17,7 +20,7 @@ public class ServiceUE {
         con = DatabaseConnection.getInstance().getConnection();
     }
 
-    public void insertUE(ModelUE ue) throws SQLException {
+    /*public void insertUE(ModelUE ue) throws SQLException {
         PreparedStatement p = con.prepareStatement(
             "INSERT INTO ues (code, name, semestreId, filiereId) VALUES (?, ?, ?, ?)",
             PreparedStatement.RETURN_GENERATED_KEYS
@@ -77,22 +80,46 @@ public class ServiceUE {
         r.close();
         p.close();
         return ue;
-    }
+    }*/
 
     public List<ModelUE> getAllUEs() throws SQLException {
         List<ModelUE> ues = new ArrayList<>();
-        String query = "SELECT ueId, code, name, semestreId, filiereId FROM ues";
+        String query = "SELECT ues.ueId, ues.code AS ueCode, ues.name AS ueName, " +
+                   "semestres.semestreId, semestres.name AS semestreName, " +
+                   "filieres.filiereId, filieres.name AS filiereName, " +
+                   "departements.departementId, departements.name AS departementName " +
+                   "FROM ues " +
+                   "JOIN semestres ON ues.semestreId = semestres.semestreId " +
+                   "JOIN filieres ON ues.filiereId = filieres.filiereId " +
+                   "JOIN departements ON filieres.departementId = departements.departementId " +
+                   "ORDER BY ues.name";
         
         try (PreparedStatement p = con.prepareStatement(query);
              ResultSet r = p.executeQuery()) {
             
             while (r.next()) {
+                ModelSemestre semestre = new ModelSemestre(
+                        r.getInt("semestreId"),
+                        r.getString("name")
+                );
+                
+               ModelDepartement departement = new ModelDepartement(
+                        r.getInt("semestreId"),
+                        r.getString("departementName")
+                );
+                
+                ModelFiliere filiere = new ModelFiliere(
+                    r.getInt("filiereId"),
+                    r.getString("filiereName"), // Nom de la filière
+                    departement // Associer le département
+                );
+                
                 ModelUE ue = new ModelUE(
                     r.getInt("ueId"),
                     r.getString("code"),
                     r.getString("name"),
-                    r.getInt("semestreId"),
-                    r.getInt("filiereId")
+                    semestre,
+                    filiere
                 );
                 ues.add(ue);
             }
@@ -100,7 +127,7 @@ public class ServiceUE {
         return ues;
     }
 
-    public List<ModelUE> getUEsByFiliere(int filiereId) throws SQLException {
+    /*public List<ModelUE> getUEsByFiliere(int filiereId) throws SQLException {
         List<ModelUE> ues = new ArrayList<>();
         PreparedStatement p = con.prepareStatement(
             "SELECT ueId, code, name, semestreId, filiereId FROM ues WHERE filiereId = ?"
@@ -142,5 +169,5 @@ public class ServiceUE {
         r.close();
         p.close();
         return ues;
-    }
+    }*/
 } 

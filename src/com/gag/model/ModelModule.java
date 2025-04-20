@@ -4,18 +4,18 @@ public class ModelModule {
     private int moduleId;
     private String code;
     private String name;
-    private int ueId;
-    private int enseignantId;
+    private ModelUE ue;
+    private ModelEnseignant enseignant;
 
     public ModelModule() {
     }
 
-    public ModelModule(int moduleId, String code, String name, int ueId, int enseignantId) {
+    public ModelModule(int moduleId, String code, String name, ModelUE ue, ModelEnseignant enseignant) {
         this.moduleId = moduleId;
         this.code = code;
         this.name = name;
-        this.ueId = ueId;
-        this.enseignantId = enseignantId;
+        this.ue = ue;
+        this.enseignant = enseignant;
     }
 
     public int getModuleId() {
@@ -42,19 +42,28 @@ public class ModelModule {
         this.name = name;
     }
 
-    public int getUeId() {
-        return ueId;
+    public ModelUE getUe() {
+        return ue;
     }
 
-    public void setUeId(int ueId) {
-        this.ueId = ueId;
+    public void setUe(ModelUE ue) {
+        this.ue = ue;
     }
 
-    public int getEnseignantId() {
-        return enseignantId;
+    public ModelEnseignant getEnseignant() {
+        return enseignant;
     }
 
-    public void setEnseignantId(int enseignantId) {
-        this.enseignantId = enseignantId;
+    public void setEnseignant(ModelEnseignant enseignant) {
+        this.enseignant = enseignant;
+    }
+
+    public Object[]toTableRow(int rowNum) {
+        return new Object[]{false,rowNum,this,name,ue,enseignant};
+    }
+
+    @Override
+    public String toString() {
+        return code;
     }
 } 

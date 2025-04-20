@@ -193,6 +193,27 @@ public class ServiceFiliere {
         return filieres;
     }
 
+    public List<ModelFiliere> getFilieresByDepartementId(int departementId) throws SQLException {
+        List<ModelFiliere> filieres = new ArrayList<>();
+        String query = "SELECT filiereId, name FROM filieres WHERE departementId = ? ORDER BY name";
+
+        try (PreparedStatement p = con.prepareStatement(query)) {
+            p.setInt(1, departementId);
+            try (ResultSet r = p.executeQuery()) {
+                while (r.next()) {
+                    ModelFiliere filiere = new ModelFiliere(
+                        r.getInt("filiereId"),
+                        r.getString("name"),
+                        null // Pas besoin de charger le département ici
+                    );
+                    System.out.println("Filière trouvée dans la base de données : " + filiere.getName());
+                    filieres.add(filiere);
+                }
+            }
+        }
+        return filieres;
+    }
+
     private int getOrCreateDepartement(ModelDepartement departement) throws SQLException {
         // Vérifier si le département existe déjà
         PreparedStatement checkStmt = con.prepareStatement(

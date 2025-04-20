@@ -79,7 +79,7 @@ public class MainSystem extends javax.swing.JFrame {
             @Override
             public void selected(int index) {
                 if (index == 0) {
-                    showForm(new Accueil());
+                    showForm(new Accueil(user));
                 } else if (index == 1) {
                     showForm(new Message());
                 } else if (index == 2) {
@@ -160,7 +160,7 @@ public class MainSystem extends javax.swing.JFrame {
         animator.setResolution(0);
         animator.setAcceleration(0.5f);
         animator.setDeceleration(0.5f);
-        showForm(new Accueil());
+        showForm(new Accueil(user));
     }
 
     private void showForm(Component com) {

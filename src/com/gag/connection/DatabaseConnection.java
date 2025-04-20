@@ -120,7 +120,8 @@ public class DatabaseConnection {
                 "etudiantId INT, " +
                 "moduleId INT, " +
                 "anneeUniversitaireId INT, " +
-                "dateInscription DATE, " +
+                "dateInscription TIMESTAMP DEFAULT CURRENT_TIMESTAMP," +
+                "updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP," +
                 "FOREIGN KEY (etudiantId) REFERENCES etudiants(etudiantId)," +
                 "FOREIGN KEY (moduleId) REFERENCES modules(moduleId)," +
                 "FOREIGN KEY (anneeUniversitaireId) REFERENCES annees_universitaires(anneeUniversitaireId)" +
