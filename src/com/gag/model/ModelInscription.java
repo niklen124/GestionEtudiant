@@ -7,17 +7,15 @@ public class ModelInscription {
     private ModelEtudiant etudiant;
     private ModelModule module;
     private ModelAnneeUniversitaire anneeUniversitaire;
-    private Date dateInscription;
 
     public ModelInscription() {
     }
 
-    public ModelInscription(int inscriptionId, ModelEtudiant etudiant, ModelModule module, ModelAnneeUniversitaire anneeUniversitaire, Date dateInscription) {
+    public ModelInscription(int inscriptionId, ModelEtudiant etudiant, ModelModule module, ModelAnneeUniversitaire anneeUniversitaire) {
         this.inscriptionId = inscriptionId;
         this.etudiant = etudiant;
         this.module = module;
         this.anneeUniversitaire = anneeUniversitaire;
-        this.dateInscription = dateInscription;
     }
 
     public int getInscriptionId() {
@@ -50,13 +48,5 @@ public class ModelInscription {
 
     public void setAnneeUniversitaire(ModelAnneeUniversitaire anneeUniversitaire) {
         this.anneeUniversitaire = anneeUniversitaire;
-    }
-
-    public Date getDateInscription() {
-        return dateInscription;
-    }
-
-    public void setDateInscription(Date dateInscription) {
-        this.dateInscription = dateInscription;
     }
 } 

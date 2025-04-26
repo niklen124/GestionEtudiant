@@ -154,4 +154,34 @@ public class ServiceEnseignant {
         }
         return serviceDepartement;
     }
+
+    public ModelEnseignant getEnseignantByName(String name) throws SQLException {
+        String query = "SELECT enseignants.enseignantId, enseignants.name AS enseignantName, enseignants.userName, enseignants.email, enseignants.grade, " +
+                      "departements.departementId, departements.name AS departementName " +
+                      "FROM enseignants " +
+                      "JOIN departements ON enseignants.departementId = departements.departementId " +
+                      "WHERE enseignants.name = ?";
+        
+        try (PreparedStatement p = con.prepareStatement(query)) {
+            p.setString(1, name);
+            ResultSet r = p.executeQuery();
+            
+            if (r.next()) {
+                ModelDepartement departement = new ModelDepartement(
+                    r.getInt("departementId"),
+                    r.getString("departementName")
+                );
+                
+                return new ModelEnseignant(
+                    r.getInt("enseignantId"),
+                    r.getString("enseignantName"),
+                    r.getString("userName"),
+                    r.getString("email"),
+                    r.getString("grade"),
+                    departement
+                );
+            }
+            return null;
+        }
+    }
 }

@@ -129,7 +129,7 @@ public class Main extends javax.swing.JFrame {
                 service.insertUser(user);
                 //showMessage(Message.MessageType.SUCCESS, "User registered successfully!");
                 this.dispose();
-                MainSystem.main(user);
+                EtudiantsAndInscriptions.main(new String[0]);
             }
         } catch (SQLException e) {
             e.printStackTrace(); // Affiche l'erreur dans la console

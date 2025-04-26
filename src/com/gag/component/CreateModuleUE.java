@@ -7,6 +7,10 @@ import com.gag.service.ServiceModule;
 import java.util.List;
 import java.util.HashSet;
 import java.util.Set;
+import com.gag.model.ModelUE;
+import com.gag.model.ModelModule;
+import com.gag.service.ServiceEnseignant;
+import com.gag.model.ModelEnseignant;
 
 public class CreateModuleUE extends javax.swing.JPanel {
 
@@ -14,26 +18,62 @@ public class CreateModuleUE extends javax.swing.JPanel {
         initComponents();
         initListeners();
     }
-    
+
     public void loadData(ServiceModule serviceModule) {
         try {
             // Charger les départements
-            txtDepartement.removeAllItems(); // Effacer les anciens éléments
+            txtDepartement.removeAllItems();
             for (ModelDepartement pos : serviceModule.getServiceDepartement().getAllDepartements()) {
                 txtDepartement.addItem(pos);
             }
 
             // Charger les filières
-            txtFiliere.removeAllItems(); // Effacer les anciens éléments
+            txtFiliere.removeAllItems();
             for (ModelFiliere pos : serviceModule.getServiceFiliere().getAllFilieres()) {
                 txtFiliere.addItem(pos);
             }
 
             // Charger les semestres
-            txtSemestre.removeAllItems(); // Effacer les anciens éléments
+            txtSemestre.removeAllItems();
             for (ModelSemestre pos : serviceModule.getServiceSemestre().getAllSemestres()) {
                 txtSemestre.addItem(pos);
             }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void loadData(ServiceModule serviceModule, ModelModule module) {
+        try {
+            // Charger les départements
+            txtDepartement.removeAllItems();
+            for (ModelDepartement pos : serviceModule.getServiceDepartement().getAllDepartements()) {
+                txtDepartement.addItem(pos);
+            }
+
+            // Charger les filières
+            txtFiliere.removeAllItems();
+            for (ModelFiliere pos : serviceModule.getServiceFiliere().getAllFilieres()) {
+                txtFiliere.addItem(pos);
+            }
+
+            // Charger les semestres
+            txtSemestre.removeAllItems();
+            for (ModelSemestre pos : serviceModule.getServiceSemestre().getAllSemestres()) {
+                txtSemestre.addItem(pos);
+            }
+
+            // Pré-remplir les champs avec les données du module
+            txtNomEnseignant.setText(module.getEnseignant().getName());
+            txtCodeModule.setText(module.getCode());
+            txtNomModule.setText(module.getName());
+            txtCodeUE.setText(module.getUe().getCode());
+            txtNomUE.setText(module.getUe().getName());
+            
+            // Sélectionner les éléments dans les combobox
+            txtDepartement.setSelectedItem(module.getUe().getFiliere().getDepartement());
+            txtFiliere.setSelectedItem(module.getUe().getFiliere());
+            txtSemestre.setSelectedItem(module.getUe().getSemestre());
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -224,6 +264,46 @@ public class CreateModuleUE extends javax.swing.JPanel {
         // TODO add your handling code here:
     }//GEN-LAST:event_txtSemestreActionPerformed
 
+    public ModelModule getData() {
+        try {
+            String nomEnseignant = txtNomEnseignant.getText();
+            String codeModule = txtCodeModule.getText();
+            String nomModule = txtNomModule.getText();
+            String codeUE = txtCodeUE.getText();
+            String nomUE = txtNomUE.getText();
+            
+            ModelDepartement departement = (ModelDepartement) txtDepartement.getSelectedItem();
+            ModelFiliere filiere = (ModelFiliere) txtFiliere.getSelectedItem();
+            ModelSemestre semestre = (ModelSemestre) txtSemestre.getSelectedItem();
+            
+            // Créer l'UE
+            ModelUE ue = new ModelUE();
+            ue.setCode(codeUE);
+            ue.setName(nomUE);
+            ue.setSemestre(semestre);
+            ue.setFiliere(filiere);
+            
+            // Créer le module
+            ModelModule module = new ModelModule();
+            module.setCode(codeModule);
+            module.setName(nomModule);
+            module.setUe(ue);
+            
+            // Récupérer l'enseignant par son nom
+            ServiceEnseignant serviceEnseignant = new ServiceEnseignant();
+            ModelEnseignant enseignant = serviceEnseignant.getEnseignantByName(nomEnseignant);
+            module.setEnseignant(enseignant);
+            
+            return module;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+    
+    public String getNomEnseignant() {
+        return txtNomEnseignant.getText();
+    }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JLabel jLabel10;

@@ -12,6 +12,14 @@ import raven.popup.component.SimplePopupBorder;
 import java.util.List;
 import com.gag.service.ServiceModule;
 import com.gag.model.ModelModule;
+import raven.toast.Notifications;
+import javax.swing.JLabel;
+import java.util.ArrayList;
+import com.gag.model.ModelDepartement;
+import com.gag.model.ModelFiliere;
+import com.gag.model.ModelSemestre;
+import com.gag.model.ModelUE;
+import com.gag.model.ModelEnseignant;
 
 public class UeModule extends javax.swing.JPanel {
 
@@ -82,7 +90,6 @@ public class UeModule extends javax.swing.JPanel {
             model.setRowCount(0);
 
             // Récupérer les modules via le service
-            ServiceModule serviceModule = new ServiceModule();
             List<ModelModule> modules = serviceModule.getAllModules();
 
             // Parcourir les modules et ajouter les données au tableau
@@ -100,6 +107,50 @@ public class UeModule extends javax.swing.JPanel {
                 });
             }
 
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void searchData(String search) {
+        try {
+            DefaultTableModel model = (DefaultTableModel) ueModuleTable.getModel();
+
+            // Arrêter l'édition si le tableau est en mode édition
+            if (ueModuleTable.isEditing()) {
+                ueModuleTable.getCellEditor().stopCellEditing();
+            }
+
+            // Effacer les anciennes données
+            model.setRowCount(0);
+
+            // Récupérer les modules via le service
+            List<ModelModule> modules = serviceModule.getAllModules();
+            
+            // Filtrer les modules selon le critère de recherche
+            for (ModelModule module : modules) {
+                if (module.getName().toLowerCase().contains(search.toLowerCase()) ||
+                    module.getCode().toLowerCase().contains(search.toLowerCase()) ||
+                    module.getUe().getName().toLowerCase().contains(search.toLowerCase()) ||
+                    module.getUe().getCode().toLowerCase().contains(search.toLowerCase()) ||
+                    module.getEnseignant().getName().toLowerCase().contains(search.toLowerCase()) ||
+                    module.getUe().getFiliere().getName().toLowerCase().contains(search.toLowerCase()) ||
+                    module.getUe().getFiliere().getDepartement().getName().toLowerCase().contains(search.toLowerCase()) ||
+                    module.getUe().getSemestre().getName().toLowerCase().contains(search.toLowerCase())) {
+                    
+                    model.addRow(new Object[]{
+                        false, // Checkbox non cochée par défaut
+                        module.getEnseignant().getName(), // Nom de l'enseignant
+                        module.getCode(), // Code du module
+                        module.getName(), // Nom du module
+                        module.getUe().getCode(), // Code de l'UE
+                        module.getUe().getName(), // Nom de l'UE
+                        module.getUe().getFiliere().getName(),
+                        module.getUe().getFiliere().getDepartement().getName(), // Nom du département
+                        module.getUe().getSemestre().getName() // Nom du semestre
+                    });
+                }
+            }
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -238,16 +289,55 @@ public class UeModule extends javax.swing.JPanel {
     }// </editor-fold>//GEN-END:initComponents
 
     private void txtSearchActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtSearchActionPerformed
-        // TODO add your handling code here:
+        searchData(txtSearch.getText().trim());
     }//GEN-LAST:event_txtSearchActionPerformed
 
-    private void cmdEditActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cmdEditActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_cmdEditActionPerformed
+    private void cmdEditActionPerformed(java.awt.event.ActionEvent evt) {
+        List<ModelModule> list = getSelectedData(); // Récupérer les modules sélectionnés
+        if (!list.isEmpty()) {
+            if (list.size() == 1) {
+                ModelModule module = list.get(0); // Récupérer le module sélectionné
+                CreateModuleUE createModuleUE = new CreateModuleUE();
+                createModuleUE.loadData(serviceModule, module); // Charger les données du module dans le formulaire
 
-    private void cmdNewActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cmdNewActionPerformed
-        CreateModuleUE CreateModuleUE = new CreateModuleUE();
-        CreateModuleUE.loadData(serviceModule);
+                DefaultOption option = new DefaultOption() {
+                    @Override
+                    public boolean closeWhenClickOutside() {
+                        return true;
+                    }
+                };
+
+                String actions[] = new String[]{"Cancel", "Update"};
+                GlassPanePopup.showPopup(new SimplePopupBorder(createModuleUE, "Modifier Module [" + module.getName() + "]", actions, (pc, i) -> {
+                    if (i == 1) { // Si l'utilisateur clique sur "Update"
+                        try {
+                            ModelModule dataEdit = createModuleUE.getData(); // Récupérer les données mises à jour
+                            if (dataEdit != null) {
+                                dataEdit.setModuleId(module.getModuleId()); // Conserver l'ID du module
+                                serviceModule.editModule(dataEdit); // Mettre à jour le module dans la base de données
+                                pc.closePopup();
+                                Notifications.getInstance().show(Notifications.Type.SUCCESS, "Module modifié avec succès.");
+                                loadData(); // Recharger les données dans le tableau
+                            }
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                            Notifications.getInstance().show(Notifications.Type.ERROR, "Erreur lors de la modification du module.");
+                        }
+                    } else {
+                        pc.closePopup(); // Fermer le popup si "Cancel" est cliqué
+                    }
+                }), option);
+            } else {
+                Notifications.getInstance().show(Notifications.Type.WARNING, "Veuillez sélectionner un seul module.");
+            }
+        } else {
+            Notifications.getInstance().show(Notifications.Type.WARNING, "Veuillez sélectionner un module à modifier.");
+        }
+    }
+
+    private void cmdNewActionPerformed(java.awt.event.ActionEvent evt) {
+        CreateModuleUE createModuleUE = new CreateModuleUE();
+        createModuleUE.loadData(serviceModule);
         DefaultOption option = new DefaultOption() {
             @Override
             public boolean closeWhenClickOutside() {
@@ -255,20 +345,106 @@ public class UeModule extends javax.swing.JPanel {
             }
         };
         String actions[] = new String[]{"Cancel", "Save"};
-        GlassPanePopup.showPopup(new SimplePopupBorder(CreateModuleUE, "Create User", actions, (pc, i) -> {
+        GlassPanePopup.showPopup(new SimplePopupBorder(createModuleUE, "Create Module UE", actions, (pc, i) -> {
             if (i == 1) {
-                // save
+                // Vérifier si l'enseignant existe
+                String nomEnseignant = createModuleUE.getNomEnseignant();
+                try {
+                    // Vérifier si l'enseignant existe dans la base de données
+                    boolean enseignantExiste = serviceModule.verifierEnseignantExiste(nomEnseignant);
                     
+                    if (!enseignantExiste) {
+                        Notifications.getInstance().show(Notifications.Type.WARNING, 
+                            "L'enseignant " + nomEnseignant + " n'existe pas. Veuillez d'abord créer l'enseignant.");
+                        return;
+                    }
+                    
+                    // Si l'enseignant existe, procéder à l'enregistrement
+                    ModelModule data = createModuleUE.getData();
+                    if (data != null) {
+                        serviceModule.insertModule(data);
+                        pc.closePopup();
+                        Notifications.getInstance().show(Notifications.Type.SUCCESS, 
+                            "Le module a été créé avec succès.");
+                        loadData();
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    Notifications.getInstance().show(Notifications.Type.ERROR, 
+                        "Erreur lors de la création du module.");
+                }
             } else {
                 pc.closePopup();
             }
         }), option);
-    }//GEN-LAST:event_cmdNewActionPerformed
+    }
 
-    private void cmdDeleteActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cmdDeleteActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_cmdDeleteActionPerformed
+    private void cmdDeleteActionPerformed(java.awt.event.ActionEvent evt) {
+        List<ModelModule> list = getSelectedData(); // Récupérer les modules sélectionnés
+        if (!list.isEmpty()) {
+            DefaultOption option = new DefaultOption() {
+                @Override
+                public boolean closeWhenClickOutside() {
+                    return true;
+                }
+            };
 
+            String actions[] = new String[]{"Cancel", "Delete"};
+            JLabel label = new JLabel("Êtes-vous sûr de vouloir supprimer " + list.size() + " module(s) et leur(s) UE(s) associée(s)?");
+            label.setBorder(new javax.swing.border.EmptyBorder(0, 25, 0, 25));
+
+            GlassPanePopup.showPopup(new SimplePopupBorder(label, "Confirmer la suppression", actions, (pc, i) -> {
+                if (i == 1) { // Si l'utilisateur clique sur "Delete"
+                    try {
+                        for (ModelModule module : list) {
+                            serviceModule.deleteModule(module.getModuleId()); // Supprimer le module et son UE associée
+                        }
+                        pc.closePopup();
+                        Notifications.getInstance().show(Notifications.Type.SUCCESS, "Module(s) et UE(s) supprimé(s) avec succès.");
+                        loadData(); // Recharger les données dans le tableau
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                        Notifications.getInstance().show(Notifications.Type.ERROR, "Erreur lors de la suppression des modules et UEs.");
+                    }
+                } else {
+                    pc.closePopup(); // Fermer le popup si "Cancel" est cliqué
+                }
+            }), option);
+        } else {
+            Notifications.getInstance().show(Notifications.Type.WARNING, "Veuillez sélectionner un ou plusieurs modules à supprimer.");
+        }
+    }
+
+    private List<ModelModule> getSelectedData() {
+        List<ModelModule> list = new ArrayList<>();
+        DefaultTableModel model = (DefaultTableModel) ueModuleTable.getModel();
+        int rows = model.getRowCount();
+        
+        try {
+            // Récupérer tous les modules de la base de données
+            List<ModelModule> allModules = serviceModule.getAllModules();
+            
+            for (int i = 0; i < rows; i++) {
+                boolean selected = (boolean) model.getValueAt(i, 0);
+                if (selected) {
+                    // Récupérer les données du tableau
+                    String codeModule = (String) model.getValueAt(i, 2);
+                    String nomModule = (String) model.getValueAt(i, 3);
+                    
+                    // Trouver le module correspondant dans la liste des modules
+                    for (ModelModule module : allModules) {
+                        if (module.getCode().equals(codeModule) && module.getName().equals(nomModule)) {
+                            list.add(module);
+                            break;
+                        }
+                    }
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return list;
+    }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private com.gag.swing.ButtonAction cmdDelete;

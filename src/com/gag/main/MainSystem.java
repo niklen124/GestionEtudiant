@@ -82,11 +82,9 @@ public class MainSystem extends javax.swing.JFrame {
                     showForm(new Accueil(user));
                 } else if (index == 1) {
                     showForm(new Message());
-                } else if (index == 2) {
-                    showForm(new Setting());
                 } else if (user.isAdmin()) {
                     // Gestion des menus spécifiques à l'admin
-                    int adminIndex = index - 3; // Décalage pour les menus admin
+                    int adminIndex = index - 2; // Décalage pour les menus admin
                     switch (adminIndex) {
                         case 0 -> showForm(new User());
                         case 1 -> showForm(new Etudiants());
@@ -99,11 +97,18 @@ public class MainSystem extends javax.swing.JFrame {
                     }
                 } else if (user.isEnseignant()) {
                     // Gestion des menus spécifiques à l'enseignant
-                    int enseignantIndex = index - 3; // Décalage pour les menus enseignant
+                    int enseignantIndex = index - 2; // Décalage pour les menus enseignant
                     switch (enseignantIndex) {
                         case 0 -> showForm(new UeModule());
                         case 1 -> showForm(new SaisirNotes());
                         default -> System.out.println("Index non géré pour enseignant : " + index);
+                    }
+                } else if (user.isEtudiant()) {
+                    // Gestion des menus spécifiques à l'étudiant
+                    int etudiantIndex = index - 2; // Décalage pour les menus étudiant
+                    switch (etudiantIndex) {
+                        case 0 -> showForm(new UeModule());
+                        default -> System.out.println("Index non géré pour étudiant : " + index);
                     }
                 } else {
                     System.out.println("Index non géré pour utilisateur simple : " + index);
@@ -114,7 +119,6 @@ public class MainSystem extends javax.swing.JFrame {
         // Ajout des menus dynamiques
         menu.addMenu(new ModelMenu("Accueil", new ImageIcon(getClass().getResource("/com/gag/icon/userS.png"))));
         menu.addMenu(new ModelMenu("Message", new ImageIcon(getClass().getResource("/com/gag/icon/message.png"))));
-        menu.addMenu(new ModelMenu("Paramètres", new ImageIcon(getClass().getResource("/com/gag/icon/setting.png"))));
 
         // Ajout des menus spécifiques à l'administrateur (à la fin)
         if (user.isAdmin()) {
@@ -128,6 +132,9 @@ public class MainSystem extends javax.swing.JFrame {
             // Ajout des menus spécifiques à l'enseignant
             menu.addMenu(new ModelMenu("UE / Module", new ImageIcon(getClass().getResource("/com/gag/icon/report.png"))));
             menu.addMenu(new ModelMenu("Saisir Notes", new ImageIcon(getClass().getResource("/com/gag/icon/report.png"))));
+        } else if (user.isEtudiant()) {
+            // Ajout des menus spécifiques à l'étudiant
+            menu.addMenu(new ModelMenu("UE / Module", new ImageIcon(getClass().getResource("/com/gag/icon/report.png"))));
         }
 
 

@@ -94,8 +94,7 @@ public class ServiceInscription {
                     r.getInt("inscriptionId"),
                     etudiant,
                     module, // Inclure le module
-                    anneeUniversitaire,
-                    r.getDate("dateInscription")
+                    anneeUniversitaire
                 );
 
                 inscriptions.add(inscription);
@@ -127,45 +126,40 @@ public class ServiceInscription {
     }
 
     public int getOrCreateEtudiantId(ModelEtudiant etudiant) throws SQLException {
-        // Vérifier si l'étudiant existe déjà
-        PreparedStatement checkStmt = con.prepareStatement(
-            "SELECT etudiantId FROM etudiants WHERE matricule = ?"
-        );
-        checkStmt.setString(1, etudiant.getMatricule());
-        ResultSet r = checkStmt.executeQuery();
-        if (r.next()) {
-            // Si l'étudiant existe, retourner son ID
-            int etudiantId = r.getInt("etudiantId");
-            r.close();
-            checkStmt.close();
-            return etudiantId;
-        }
-        r.close();
-        checkStmt.close();
+        String selectQuery = "SELECT etudiantId FROM etudiants WHERE email = ?";
+        String insertQuery = "INSERT INTO etudiants (nom, prenom, email, telephone, dateNaissance, filiereId) VALUES (?, ?, ?, ?, ?, ?)";
 
-        // Si l'étudiant n'existe pas, le créer
-        PreparedStatement insertStmt = con.prepareStatement(
-            "INSERT INTO etudiants (matricule, name, userName, email, telephone, dateNaissance, sexe, anneeUniversitaireId, filiereId) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
-            PreparedStatement.RETURN_GENERATED_KEYS
-        );
-        insertStmt.setString(1, etudiant.getMatricule());
-        insertStmt.setString(2, etudiant.getName());
-        insertStmt.setString(3, etudiant.getUserName());
-        insertStmt.setString(4, etudiant.getEmail());
-        insertStmt.setString(5, etudiant.getTelephone());
-        insertStmt.setDate(6, new java.sql.Date(etudiant.getDateNaissance().getTime()));
-        insertStmt.setString(7, etudiant.getSexe());
-        insertStmt.setInt(8, etudiant.getAnneeUniversitaire().getAnneeUniversitaireId()); // Utiliser l'ID de l'année universitaire
-        insertStmt.setInt(9, etudiant.getFiliere().getFiliereId());
-        insertStmt.executeUpdate();
-        ResultSet generatedKeys = insertStmt.getGeneratedKeys();
-        int newEtudiantId = 0;
-        if (generatedKeys.next()) {
-            newEtudiantId = generatedKeys.getInt(1);
+        try (PreparedStatement selectStmt = con.prepareStatement(selectQuery)) {
+            // Vérifier si l'étudiant existe déjà
+            selectStmt.setString(1, etudiant.getEmail());
+            try (ResultSet rs = selectStmt.executeQuery()) {
+                if (rs.next()) {
+                    // Retourner l'ID de l'étudiant existant
+                    return rs.getInt("etudiantId");
+                }
+            }
         }
-        generatedKeys.close();
-        insertStmt.close();
-        return newEtudiantId;
+
+        // Si l'étudiant n'existe pas, l'insérer
+        try (PreparedStatement insertStmt = con.prepareStatement(insertQuery, PreparedStatement.RETURN_GENERATED_KEYS)) {
+            insertStmt.setString(1, etudiant.getName());
+            insertStmt.setString(2, etudiant.getUserName());
+            insertStmt.setString(3, etudiant.getEmail());
+            insertStmt.setString(4, etudiant.getTelephone());
+            insertStmt.setDate(5, new java.sql.Date(etudiant.getDateNaissance().getTime()));
+            insertStmt.setInt(6, etudiant.getFiliere().getFiliereId());
+
+            insertStmt.executeUpdate();
+
+            // Récupérer l'ID généré
+            try (ResultSet generatedKeys = insertStmt.getGeneratedKeys()) {
+                if (generatedKeys.next()) {
+                    return generatedKeys.getInt(1);
+                } else {
+                    throw new SQLException("Échec de la création de l'étudiant, aucun ID généré.");
+                }
+            }
+        }
     }
 
     public ServiceAnneeUniversitaire getServiceAnneeUniversitaire() {

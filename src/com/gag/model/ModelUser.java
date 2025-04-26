@@ -70,4 +70,8 @@ public class ModelUser {
     public boolean isEnseignant() {
         return ENSEIGNANT.equals(userType);
     }
+
+    public boolean isEtudiant() {
+        return ETUDIANT.equals(userType);
+    }
 }

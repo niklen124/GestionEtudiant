@@ -66,15 +66,18 @@ public class DatabaseConnection {
             // Créer la table etudiants si elle n'existe pas
             String createEtudiantsTable = "CREATE TABLE IF NOT EXISTS etudiants (" +
                 "etudiantId INT AUTO_INCREMENT PRIMARY KEY, " +
-                "matricule VARCHAR(100) NOT NULL, " +
+                "matricule VARCHAR(100), " +
                 "name VARCHAR(100) NOT NULL, " +
                 "userName VARCHAR(100) NOT NULL, " +
                 "email VARCHAR(100) NOT NULL UNIQUE, " +
                 "telephone VARCHAR(15), " +
                 "dateNaissance DATE, " +
                 "sexe ENUM('M', 'F'), " +
-                "anneeScolaire YEAR, " +
+                "anneeUniversitaireId INT, " +
                 "filiereId INT, " +
+                "created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP, " +
+                "updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP, " +
+                "FOREIGN KEY (anneeUniversitaireId) REFERENCES annees_universitaires(anneeUniversitaireId), " +
                 "FOREIGN KEY (filiereId) REFERENCES filieres(filiereId)" +
             ")";
 
@@ -110,7 +113,7 @@ public class DatabaseConnection {
                 "name VARCHAR(100) NOT NULL, " +
                 "ueId INT, " +
                 "enseignantId INT, " +
-                "FOREIGN KEY (ueId) REFERENCES ues(ueId)," +
+                "FOREIGN KEY (ueId) REFERENCES ues(ueId) ON DELETE CASCADE," +
                 "FOREIGN KEY (enseignantId) REFERENCES enseignants(enseignantId)" +
             ")";
 
@@ -159,6 +162,37 @@ public class DatabaseConnection {
                 String createAdmin = "INSERT INTO users (userName, email, password, userType) " +
                     "VALUES ('admin', 'admin@gag.com', 'admin123', 'admin')";
                 stmt.execute(createAdmin);
+            }
+
+            // Vérifier s'il existe des semestres, sinon les créer
+            String checkSemestres = "SELECT COUNT(*) FROM semestres";
+            rs = stmt.executeQuery(checkSemestres);
+            rs.next();
+            if (rs.getInt(1) == 0) {
+                String createSemestres = "INSERT INTO semestres (name) VALUES " +
+                    "('Semestre 1'), ('Semestre 2'), ('Semestre 3'), ('Semestre 4'), ('Semestre 5'), ('Semestre 6')";
+                stmt.execute(createSemestres);
+            }
+
+            // Vérifier s'il existe des années universitaires, sinon les créer
+            String checkAnneesUniversitaires = "SELECT COUNT(*) FROM annees_universitaires";
+            rs = stmt.executeQuery(checkAnneesUniversitaires);
+            rs.next();
+            if (rs.getInt(1) == 0) {
+                String createAnneesUniversitaires = "INSERT INTO annees_universitaires (debut, fin, libelle) VALUES " +
+                    "(2023, 2024, '2023-2024'), (2024, 2025, '2024-2025'), (2025, 2026, '2025-2026'), " +
+                    "(2026, 2027, '2026-2027'), (2027, 2028, '2027-2028'), (2028, 2029, '2028-2029')";
+                stmt.execute(createAnneesUniversitaires);
+            }
+
+            // Vérifier s'il existe des départements, sinon les créer
+            String checkDepartements = "SELECT COUNT(*) FROM departements";
+            rs = stmt.executeQuery(checkDepartements);
+            rs.next();
+            if (rs.getInt(1) == 0) {
+                String createDepartements = "INSERT INTO departements (name) VALUES " +
+                    "('Informatique'), ('Mathematiques'), ('Physique'), ('Chimie'), ('Biologie')";
+                stmt.execute(createDepartements);
             }
         } catch (SQLException e) {
             e.printStackTrace();
