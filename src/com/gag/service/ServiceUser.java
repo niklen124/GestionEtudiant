@@ -158,5 +158,54 @@ public class ServiceUser {
         }
         return users;
     }
+
+    public boolean isEmailMatching(String email) throws SQLException {
+        String query = "SELECT COUNT(*) AS count FROM users WHERE TRIM(LOWER(email)) = TRIM(LOWER(?))";
+        try (PreparedStatement p = con.prepareStatement(query)) {
+            p.setString(1, email);
+            System.out.println("Vérification de l'email : " + email); // Log pour afficher l'email
+            try (ResultSet r = p.executeQuery()) {
+                if (r.next()) {
+                    int count = r.getInt("count");
+                    System.out.println("Résultat de la requête : " + count); // Log pour afficher le résultat
+                    return count > 0;
+                }
+            }
+        }
+        return false; // Retourne false si aucune correspondance n'est trouvée
+    }
+
+    public boolean isEmailInUsers(String email) throws SQLException {
+        String query = "SELECT COUNT(*) AS count FROM users WHERE email = ?";
+        try (PreparedStatement p = con.prepareStatement(query)) {
+            p.setString(1, email);
+            try (ResultSet r = p.executeQuery()) {
+                if (r.next()) {
+                    return r.getInt("count") > 0;
+                }
+            }
+        }
+        return false;
+    }
+
+    public ModelUser getUserByEmail(String email) {
+        ModelUser user = null;
+        String sql = "SELECT userID, userName, email, userType FROM users WHERE LOWER(email) = LOWER(?) LIMIT 1";
+        try (PreparedStatement p = con.prepareStatement(sql)) {
+            p.setString(1, email);
+            ResultSet r = p.executeQuery();
+            if (r.next()) {
+                int userID = r.getInt("userID");
+                String userName = r.getString("userName");
+                String userEmail = r.getString("email");
+                String userType = r.getString("userType");
+                user = new ModelUser(userID, userName, userEmail, "", userType);
+            }
+            r.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return user;
+    }
 }
 

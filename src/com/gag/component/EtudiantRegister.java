@@ -5,6 +5,7 @@ import com.gag.model.ModelEtudiant;
 import com.gag.model.ModelFiliere;
 import com.gag.model.ModelUser;
 import com.gag.service.ServiceEtudiant;
+import com.gag.service.ServiceUser;
 import raven.toast.Notifications;
 
 public class EtudiantRegister extends javax.swing.JPanel {
@@ -204,9 +205,19 @@ public class EtudiantRegister extends javax.swing.JPanel {
     private void btnSaveActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSaveActionPerformed
         try {
             // Récupérer les données du formulaire
+            String email = txtEmail.getText().trim();
+            System.out.println("Email saisi : " + email); // Log pour afficher l'email saisi
+
+            // Vérifier la correspondance des emails
+            ServiceUser serviceUser = new ServiceUser();
+            if (!serviceUser.isEmailMatching(email)) {
+                Notifications.getInstance().show(Notifications.Type.WARNING, "L'email ne correspond pas a l'email entrée lors de la connexion.");
+                return; // Arrêter le processus si les emails ne correspondent pas
+            }
+
+            // Continuer avec l'enregistrement de l'étudiant
             String name = txtName.getText().trim();
             String userName = txtUserName.getText().trim();
-            String email = txtEmail.getText().trim();
             String telephone = txtPhone.getText().trim();
             String sexe = (String) txtSexe.getSelectedItem();
             String dateText = txtDate.getText().trim();
@@ -249,8 +260,8 @@ public class EtudiantRegister extends javax.swing.JPanel {
 
             if (etudiantId > 0) {
                 Notifications.getInstance().show(Notifications.Type.SUCCESS, "Étudiant enregistré avec succès.");
-                ModelUser user = new ModelUser(); // Créer un objet utilisateur (exemple)
-                switchToInscriptionForm(etudiant, user); // Passer l'objet étudiant et utilisateur
+                ModelUser user = serviceUser.getUserByEmail(email);
+                switchToInscriptionForm(etudiant, user);
             } else {
                 Notifications.getInstance().show(Notifications.Type.ERROR, "Erreur lors de l'enregistrement de l'étudiant.");
             }

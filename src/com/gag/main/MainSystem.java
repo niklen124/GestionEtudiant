@@ -8,6 +8,7 @@ import com.gag.event.EventMenuSelected;
 import com.gag.form.Accueil;
 import com.gag.form.DepartementFiliere;
 import com.gag.form.Enseignants;
+import com.gag.form.EtudiantNotes;
 import com.gag.form.Etudiants;
 import com.gag.form.Message;
 import com.gag.form.SaisirNotes;
@@ -107,7 +108,7 @@ public class MainSystem extends javax.swing.JFrame {
                     // Gestion des menus spécifiques à l'étudiant
                     int etudiantIndex = index - 2; // Décalage pour les menus étudiant
                     switch (etudiantIndex) {
-                        case 0 -> showForm(new UeModule());
+                        case 0 -> showForm(new EtudiantNotes(user));
                         default -> System.out.println("Index non géré pour étudiant : " + index);
                     }
                 } else {
@@ -117,24 +118,24 @@ public class MainSystem extends javax.swing.JFrame {
         });
 
         // Ajout des menus dynamiques
-        menu.addMenu(new ModelMenu("Accueil", new ImageIcon(getClass().getResource("/com/gag/icon/userS.png"))));
+        menu.addMenu(new ModelMenu("Accueil", new ImageIcon(getClass().getResource("/com/gag/icon/png/accueilMenu.png"))));
         menu.addMenu(new ModelMenu("Message", new ImageIcon(getClass().getResource("/com/gag/icon/message.png"))));
 
         // Ajout des menus spécifiques à l'administrateur (à la fin)
         if (user.isAdmin()) {
             menu.addMenu(new ModelMenu("Users", new ImageIcon(getClass().getResource("/com/gag/icon/userS.png"))));
-            menu.addMenu(new ModelMenu("Etudiants", new ImageIcon(getClass().getResource("/com/gag/icon/report.png"))));
-            menu.addMenu(new ModelMenu("Enseignants", new ImageIcon(getClass().getResource("/com/gag/icon/report.png"))));
-            menu.addMenu(new ModelMenu("Département / Filière", new ImageIcon(getClass().getResource("/com/gag/icon/report.png"))));
-            menu.addMenu(new ModelMenu("UE / Module", new ImageIcon(getClass().getResource("/com/gag/icon/report.png"))));
+            menu.addMenu(new ModelMenu("Etudiants", new ImageIcon(getClass().getResource("/com/gag/icon/png/etudiantMenu.png"))));
+            menu.addMenu(new ModelMenu("Enseignants", new ImageIcon(getClass().getResource("/com/gag/icon/png/enseignantMenu.png"))));
+            menu.addMenu(new ModelMenu("Département / Filière", new ImageIcon(getClass().getResource("/com/gag/icon/png/departementMenu.png"))));
+            menu.addMenu(new ModelMenu("UE / Module", new ImageIcon(getClass().getResource("/com/gag/icon/png/livreMenu.png"))));
             menu.addMenu(new ModelMenu("Saisir Notes", new ImageIcon(getClass().getResource("/com/gag/icon/report.png"))));
         } else if (user.isEnseignant()) {
             // Ajout des menus spécifiques à l'enseignant
-            menu.addMenu(new ModelMenu("UE / Module", new ImageIcon(getClass().getResource("/com/gag/icon/report.png"))));
+            menu.addMenu(new ModelMenu("UE / Module", new ImageIcon(getClass().getResource("/com/gag/icon/png/livreMenu.png"))));
             menu.addMenu(new ModelMenu("Saisir Notes", new ImageIcon(getClass().getResource("/com/gag/icon/report.png"))));
         } else if (user.isEtudiant()) {
             // Ajout des menus spécifiques à l'étudiant
-            menu.addMenu(new ModelMenu("UE / Module", new ImageIcon(getClass().getResource("/com/gag/icon/report.png"))));
+            menu.addMenu(new ModelMenu("Notes", new ImageIcon(getClass().getResource("/com/gag/icon/report.png"))));
         }
 
 

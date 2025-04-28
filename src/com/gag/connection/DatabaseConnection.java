@@ -136,10 +136,12 @@ public class DatabaseConnection {
                 "etudiantId INT, " +
                 "moduleId INT, " +
                 "anneeUniversitaireId INT, " +
-                "note FLOAT, " +
+                "inscriptionId INT, " +
+                "note FLOAT DEFAULT 0.0, " +
                 "FOREIGN KEY (etudiantId) REFERENCES inscriptions(etudiantId)," +
                 "FOREIGN KEY (moduleId) REFERENCES modules(moduleId)," +
                 "FOREIGN KEY (anneeUniversitaireId) REFERENCES annees_universitaires(anneeUniversitaireId)" +
+                "FOREIGN KEY (inscriptionId) REFERENCES inscriptions(inscriptionId)" +
             ")";
 
             stmt.execute(createUsersTable);

@@ -87,4 +87,16 @@ public class ServiceDepartement {
         }
         return departements;
     }
-} 
+
+    public boolean verifierEtudiantExiste(String nomEtudiant) throws SQLException {
+        String query = "SELECT COUNT(*) FROM etudiants WHERE name = ?";
+        try (PreparedStatement p = DatabaseConnection.getInstance().getConnection().prepareStatement(query)) {
+            p.setString(1, nomEtudiant);
+            ResultSet r = p.executeQuery();
+            if (r.next()) {
+                return r.getInt(1) > 0;
+            }
+            return false;
+        }
+    }
+}

@@ -5,13 +5,17 @@
         <group>
             <file>file:/D:/ProjectJava/Netbeans/GaG-Etudiants/src/com/gag/component/InscriptionForm.java</file>
             <file>file:/D:/ProjectJava/Netbeans/GaG-Etudiants/src/com/gag/component/EtudiantRegister.java</file>
-            <file>file:/D:/ProjectJava/Netbeans/GaG-Etudiants/src/com/gag/service/ServiceEtudiant.java</file>
-            <file>file:/D:/ProjectJava/Netbeans/GaG-Etudiants/src/com/gag/main/MainSystem.java</file>
             <file>file:/D:/ProjectJava/Netbeans/GaG-Etudiants/src/com/gag/component/CreateEtudiant.java</file>
             <file>file:/D:/ProjectJava/Netbeans/GaG-Etudiants/src/com/gag/form/Enseignants.java</file>
-            <file>file:/D:/ProjectJava/Netbeans/GaG-Etudiants/src/com/gag/main/EtudiantsAndInscriptions.java</file>
+            <file>file:/D:/ProjectJava/Netbeans/GaG-Etudiants/src/com/gag/component/CreateSaisirNote.java</file>
             <file>file:/D:/ProjectJava/Netbeans/GaG-Etudiants/src/com/gag/service/ServiceInscription.java</file>
             <file>file:/D:/ProjectJava/Netbeans/GaG-Etudiants/src/com/gag/main/Main.java</file>
+            <file>file:/D:/ProjectJava/Netbeans/GaG-Etudiants/src/com/gag/form/SaisirNotes.java</file>
+            <file>file:/D:/ProjectJava/Netbeans/GaG-Etudiants/src/com/gag/service/ServiceEtudiant.java</file>
+            <file>file:/D:/ProjectJava/Netbeans/GaG-Etudiants/src/com/gag/service/ServiceSaisirNotes.java</file>
+            <file>file:/D:/ProjectJava/Netbeans/GaG-Etudiants/src/com/gag/main/MainSystem.java</file>
+            <file>file:/D:/ProjectJava/Netbeans/GaG-Etudiants/src/com/gag/main/EtudiantsAndInscriptions.java</file>
+            <file>file:/D:/ProjectJava/Netbeans/GaG-Etudiants/src/com/gag/model/ModelNote.java</file>
         </group>
     </open-files>
 </project-private>

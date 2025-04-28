@@ -219,4 +219,87 @@ public class ServiceEtudiant {
         }
         return serviceFiliere;
     }
+
+    public ModelEtudiant getEtudiantByName(String nomEtudiant) throws SQLException {
+        String query = "SELECT " +
+                       "e.etudiantId, " +
+                       "e.matricule, " +
+                       "e.name AS etudiantName, " +
+                       "e.userName, " +
+                       "e.email, " +
+                       "e.telephone, " +
+                       "e.dateNaissance, " +
+                       "e.sexe, " +
+                       "f.filiereId, " +
+                       "f.name AS filiereName, " +
+                       "au.anneeUniversitaireId, " +
+                       "au.debut AS anneeDebut, " +
+                       "au.fin AS anneeFin, " +
+                       "au.libelle AS anneeLibelle " +
+                       "FROM etudiants e " +
+                       "LEFT JOIN filieres f ON e.filiereId = f.filiereId " +
+                       "LEFT JOIN annees_universitaires au ON e.anneeUniversitaireId = au.anneeUniversitaireId " +
+                       "WHERE e.name = ?";
+
+        try (PreparedStatement p = con.prepareStatement(query)) {
+            p.setString(1, nomEtudiant);
+
+            try (ResultSet r = p.executeQuery()) {
+                if (r.next()) {
+                    ModelAnneeUniversitaire anneeUniversitaire = new ModelAnneeUniversitaire(
+                        r.getInt("anneeUniversitaireId"),
+                        r.getInt("anneeDebut"),
+                        r.getInt("anneeFin"),
+                        r.getString("anneeLibelle")
+                    );
+
+                    ModelFiliere filiere = new ModelFiliere(
+                        r.getInt("filiereId"),
+                        r.getString("filiereName"),
+                        null
+                    );
+
+                    return new ModelEtudiant(
+                        r.getInt("etudiantId"),
+                        r.getString("matricule"),
+                        r.getString("etudiantName"),
+                        r.getString("userName"),
+                        r.getString("email"),
+                        r.getString("telephone"),
+                        r.getDate("dateNaissance"),
+                        r.getString("sexe"),
+                        anneeUniversitaire,
+                        filiere
+                    );
+                }
+            }
+        }
+        return null; // Retourne null si aucun étudiant n'est trouvé
+    }
+
+    public boolean isEmailInEtudiants(String email) throws SQLException {
+        String query = "SELECT COUNT(*) AS count FROM etudiants WHERE email = ?";
+        try (PreparedStatement p = con.prepareStatement(query)) {
+            p.setString(1, email);
+            try (ResultSet r = p.executeQuery()) {
+                if (r.next()) {
+                    return r.getInt("count") > 0;
+                }
+            }
+        }
+        return false;
+    }
+
+    public int getEtudiantIdByEmail(String email) throws SQLException {
+        String query = "SELECT etudiantId FROM etudiants WHERE email = ?";
+        try (PreparedStatement p = con.prepareStatement(query)) {
+            p.setString(1, email);
+            try (ResultSet r = p.executeQuery()) {
+                if (r.next()) {
+                    return r.getInt("etudiantId");
+                }
+            }
+        }
+        return 0; // Retourne 0 si aucun étudiant n'est trouvé
+    }
 }

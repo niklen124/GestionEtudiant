@@ -91,33 +91,41 @@ public class InscriptionForm extends javax.swing.JPanel {
             // Récupérer les modules via le service
             List<ModelModule> modules = serviceModule.getAllModules();
             
-            // Filtrer les modules selon le critère de recherche
+            // Filtrer les modules selon le critère de recherche et la filière
             for (ModelModule module : modules) {
-                if (module.getName().toLowerCase().contains(search.toLowerCase()) ||
-                    module.getCode().toLowerCase().contains(search.toLowerCase()) ||
-                    module.getUe().getName().toLowerCase().contains(search.toLowerCase()) ||
-                    module.getUe().getCode().toLowerCase().contains(search.toLowerCase()) ||
-                    module.getEnseignant().getName().toLowerCase().contains(search.toLowerCase()) ||
-                    module.getUe().getFiliere().getName().toLowerCase().contains(search.toLowerCase()) ||
-                    module.getUe().getFiliere().getDepartement().getName().toLowerCase().contains(search.toLowerCase()) ||
-                    module.getUe().getSemestre().getName().toLowerCase().contains(search.toLowerCase())) {
+                // Vérifier si le module appartient à la filière de l'étudiant
+                if (module.getUe() != null && 
+                    module.getUe().getFiliere() != null && 
+                    module.getUe().getFiliere().getFiliereId() == etudiant.getFiliere().getFiliereId()) {
                     
-                    model.addRow(new Object[]{
-                        false, // Checkbox non cochée par défaut
-                        module.getModuleId(), // ID du module (doit être un entier)
-                        module.getEnseignant().getName(), // Nom de l'enseignant
-                        module.getCode(), // Code du module
-                        module.getName(), // Nom du module
-                        module.getUe().getCode(), // Code de l'UE
-                        module.getUe().getName(), // Nom de l'UE
-                        module.getUe().getFiliere().getName(),
-                        module.getUe().getFiliere().getDepartement().getName(), // Nom du département
-                        module.getUe().getSemestre().getName() // Nom du semestre
-                    });
+                    // Vérifier les critères de recherche
+                    if (module.getName().toLowerCase().contains(search.toLowerCase()) ||
+                        module.getCode().toLowerCase().contains(search.toLowerCase()) ||
+                        module.getUe().getName().toLowerCase().contains(search.toLowerCase()) ||
+                        module.getUe().getCode().toLowerCase().contains(search.toLowerCase()) ||
+                        module.getEnseignant().getName().toLowerCase().contains(search.toLowerCase()) ||
+                        module.getUe().getFiliere().getName().toLowerCase().contains(search.toLowerCase()) ||
+                        module.getUe().getFiliere().getDepartement().getName().toLowerCase().contains(search.toLowerCase()) ||
+                        module.getUe().getSemestre().getName().toLowerCase().contains(search.toLowerCase())) {
+                        
+                        model.addRow(new Object[]{
+                            false, // Checkbox non cochée par défaut
+                            module.getModuleId(), // ID du module (doit être un entier)
+                            module.getEnseignant().getName(), // Nom de l'enseignant
+                            module.getCode(), // Code du module
+                            module.getName(), // Nom du module
+                            module.getUe().getCode(), // Code de l'UE
+                            module.getUe().getName(), // Nom de l'UE
+                            module.getUe().getFiliere().getName(),
+                            module.getUe().getFiliere().getDepartement().getName(), // Nom du département
+                            module.getUe().getSemestre().getName() // Nom du semestre
+                        });
+                    }
                 }
             }
         } catch (Exception e) {
             e.printStackTrace();
+            Notifications.getInstance().show(Notifications.Type.ERROR, "Erreur lors de la recherche des modules");
         }
     }
 

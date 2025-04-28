@@ -100,7 +100,7 @@ public class ServiceInscription {
                 inscriptions.add(inscription);
             }
         }
-        System.out.println("Inscriptions récupérées : " + inscriptions.size()); // Vérifiez le nombre d'inscriptions
+        //System.out.println("Inscriptions récupérées : " + inscriptions.size()); // Vérifiez le nombre d'inscriptions
         return inscriptions;
     }
     
@@ -116,10 +116,22 @@ public class ServiceInscription {
         p.setInt(1, etudiantId);
         p.setInt(2, data.getAnneeUniversitaire().getAnneeUniversitaireId()); // Utiliser l'ID de l'année universitaire
         p.execute();
+
         ResultSet r = p.getGeneratedKeys();
         if (r.next()) {
             int inscriptionId = r.getInt(1);
             data.setInscriptionId(inscriptionId);
+
+            // Insérer une note par défaut dans la table notes
+            PreparedStatement noteStmt = con.prepareStatement(
+                "INSERT INTO notes (etudiantId, moduleId, anneeUniversitaireId, note) VALUES (?, ?, ?, ?)"
+            );
+            noteStmt.setInt(1, etudiantId);
+            noteStmt.setInt(2, data.getModule().getModuleId());
+            noteStmt.setInt(3, data.getAnneeUniversitaire().getAnneeUniversitaireId());
+            noteStmt.setFloat(4, 0.0f); // Note par défaut
+            noteStmt.execute();
+            noteStmt.close();
         }
         r.close();
         p.close();
