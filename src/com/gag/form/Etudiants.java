@@ -3,7 +3,9 @@ package com.gag.form;
 import com.formdev.flatlaf.FlatClientProperties;
 import com.formdev.flatlaf.extras.FlatSVGIcon;
 import com.gag.component.CreateEtudiant;
+import com.gag.model.ModelAnneeUniversitaire;
 import com.gag.model.ModelEtudiant;
+import com.gag.model.ModelFiliere;
 import com.gag.service.ServiceEtudiant;
 import com.gag.table.CheckBoxTableHeaderRenderer;
 import com.gag.table.TableHeaderAlignment;
@@ -137,23 +139,18 @@ public class Etudiants extends javax.swing.JPanel {
         DefaultTableModel model = (DefaultTableModel) etudiantTable.getModel();
 
         for (int i = 0; i < model.getRowCount(); i++) {
-            Boolean isSelected = (Boolean) model.getValueAt(i, 0); // Vérifier si la case à cocher est sélectionnée
+            Boolean isSelected = (Boolean) model.getValueAt(i, 0);
             if (isSelected != null && isSelected) {
-                // Récupérer l'ID de l'étudiant depuis une colonne cachée ou une autre source
-                int etudiantId = (int) model.getValueAt(i, 9); // Assurez-vous que l'ID est dans la colonne 9 (ou une autre colonne appropriée)
-                ModelEtudiant etudiant = new ModelEtudiant(
-                    etudiantId, // Utiliser l'ID correct
-                    (String) model.getValueAt(i, 1), // Matricule
-                    (String) model.getValueAt(i, 2), // Nom
-                    (String) model.getValueAt(i, 3), // Prénom
-                    (String) model.getValueAt(i, 4), // Email
-                    (String) model.getValueAt(i, 5), // Téléphone
-                    (java.sql.Date) model.getValueAt(i, 6), // Date de naissance
-                    null, // Sexe (ajoutez si nécessaire)
-                    null, // Année universitaire (ajoutez si nécessaire)
-                    null  // Filière (ajoutez si nécessaire)
-                );
-                selectedEtudiants.add(etudiant);
+                int etudiantId = (int) model.getValueAt(i, 9);
+                try {
+                    // Récupérer l'étudiant complet depuis la base de données
+                    ModelEtudiant etudiant = serviceEtudiant.getEtudiantById(etudiantId);
+                    if (etudiant != null) {
+                        selectedEtudiants.add(etudiant);
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
             }
         }
         return selectedEtudiants;

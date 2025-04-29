@@ -46,7 +46,9 @@ public class CreateEtudiant extends javax.swing.JPanel {
             txtEmail.setText(data.getEmail());
             txtPhone.setText(data.getTelephone());
             datePicker.setSelectedDate(data.getDateNaissance().toLocalDate());
-            txtSexe.setSelectedItem(data.getSexe());
+            if (data.getSexe() != null) {
+                txtSexe.setSelectedItem(data.getSexe().toUpperCase().trim());
+            }
         }
     }
 
@@ -81,9 +83,25 @@ public class CreateEtudiant extends javax.swing.JPanel {
         txtEmail.setText(etudiant.getEmail());
         txtPhone.setText(etudiant.getTelephone());
         datePicker.setSelectedDate(etudiant.getDateNaissance().toLocalDate());
-        txtSexe.setSelectedItem(etudiant.getSexe());
-        txtAnneeScolaire.setSelectedItem(etudiant.getAnneeUniversitaire()); // Sélectionner l'année universitaire
-        txtFiliere.setSelectedItem(etudiant.getFiliere()); // Sélectionner la filière
+        if (etudiant.getSexe() != null) {
+            txtSexe.setSelectedItem(etudiant.getSexe().toUpperCase().trim());
+        }
+        // Sélectionner l'année universitaire par ID
+        for (int i = 0; i < txtAnneeScolaire.getItemCount(); i++) {
+            ModelAnneeUniversitaire annee = (ModelAnneeUniversitaire) txtAnneeScolaire.getItemAt(i);
+            if (annee.getAnneeUniversitaireId() == etudiant.getAnneeUniversitaire().getAnneeUniversitaireId()) {
+                txtAnneeScolaire.setSelectedIndex(i);
+                break;
+            }
+        }
+        // Sélectionner la filière par ID
+        for (int i = 0; i < txtFiliere.getItemCount(); i++) {
+            ModelFiliere filiere = (ModelFiliere) txtFiliere.getItemAt(i);
+            if (filiere.getFiliereId() == etudiant.getFiliere().getFiliereId()) {
+                txtFiliere.setSelectedIndex(i);
+                break;
+            }
+        }
     }
 
     public ModelAnneeUniversitaire getSelectedAnneeUniversitaire() {

@@ -1,5 +1,9 @@
 package com.gag.form;
 
+import com.gag.model.ModelMessageRapport;
+import com.gag.service.ServiceMessage;
+import raven.toast.Notifications;
+
 public class Message extends javax.swing.JPanel {
 
     public Message() {
@@ -75,9 +79,7 @@ public class Message extends javax.swing.JPanel {
             .addGroup(layout.createSequentialGroup()
                 .addGap(20, 20, 20)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(layout.createSequentialGroup()
-                        .addComponent(jLabel1)
-                        .addGap(0, 0, 0))
+                    .addComponent(jLabel1)
                     .addGroup(layout.createSequentialGroup()
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                             .addComponent(jLabel6, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
@@ -105,9 +107,9 @@ public class Message extends javax.swing.JPanel {
                 .addGap(20, 20, 20)
                 .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 27, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(20, 20, 20)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel2, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jLabel3, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jLabel3, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel2, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(10, 10, 10)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                     .addComponent(txtName, javax.swing.GroupLayout.PREFERRED_SIZE, 32, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -139,7 +141,22 @@ public class Message extends javax.swing.JPanel {
     }//GEN-LAST:event_txtSubjectActionPerformed
 
     private void cmdSendMessageActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cmdSendMessageActionPerformed
-        // TODO add your handling code here:
+        ModelMessageRapport message = new ModelMessageRapport(
+            txtName.getText().trim(),
+            txtSubject.getText().trim(),
+            txtEmail.getText().trim(),
+            txtPhone.getText().trim(),
+            txtMessage.getText().trim()
+        );
+
+        ServiceMessage serviceMessage = new ServiceMessage();
+        boolean success = serviceMessage.enregistrerMessage(message);
+
+        if (success) {
+            Notifications.getInstance().show(Notifications.Type.SUCCESS, "Message envoyé avec succès !");
+        } else {
+            Notifications.getInstance().show(Notifications.Type.ERROR, "Erreur lors de l'envoi du message.");
+        }
     }//GEN-LAST:event_cmdSendMessageActionPerformed
 
 

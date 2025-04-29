@@ -366,14 +366,33 @@ public class ServiceSaisirNotes {
         int inscriptionId = insertInscription(note.getEtudiant().getEtudiantId(), moduleId, note.getAnneeUniversitaire().getAnneeUniversitaireId());
 
         // Enfin, insérer la note avec l'ID de l'inscription
-        String query = "INSERT INTO notes (etudiantId, moduleId, anneeUniversitaireId, inscriptionId, note) VALUES (?, ?, ?, ?, ?)";
-        try (PreparedStatement p = con.prepareStatement(query)) {
-            p.setInt(1, note.getEtudiant().getEtudiantId());
-            p.setInt(2, moduleId);
-            p.setInt(3, note.getAnneeUniversitaire().getAnneeUniversitaireId());
-            p.setInt(4, inscriptionId);
-            p.setDouble(5, note.getNote());
-            p.executeUpdate();
+        String checkQuery = "SELECT noteId FROM notes WHERE etudiantId = ? AND moduleId = ? AND anneeUniversitaireId = ?";
+        try (PreparedStatement checkStmt = con.prepareStatement(checkQuery)) {
+            checkStmt.setInt(1, note.getEtudiant().getEtudiantId());
+            checkStmt.setInt(2, moduleId);
+            checkStmt.setInt(3, note.getAnneeUniversitaire().getAnneeUniversitaireId());
+            ResultSet rs = checkStmt.executeQuery();
+            if (rs.next()) {
+                // La note existe déjà, on fait un UPDATE
+                int noteId = rs.getInt("noteId");
+                String updateQuery = "UPDATE notes SET note = ? WHERE noteId = ?";
+                try (PreparedStatement updateStmt = con.prepareStatement(updateQuery)) {
+                    updateStmt.setDouble(1, note.getNote());
+                    updateStmt.setInt(2, noteId);
+                    updateStmt.executeUpdate();
+                }
+            } else {
+                // La note n'existe pas, on fait un INSERT
+                String insertQuery = "INSERT INTO notes (etudiantId, moduleId, anneeUniversitaireId, inscriptionId, note) VALUES (?, ?, ?, ?, ?)";
+                try (PreparedStatement insertStmt = con.prepareStatement(insertQuery)) {
+                    insertStmt.setInt(1, note.getEtudiant().getEtudiantId());
+                    insertStmt.setInt(2, moduleId);
+                    insertStmt.setInt(3, note.getAnneeUniversitaire().getAnneeUniversitaireId());
+                    insertStmt.setInt(4, inscriptionId);
+                    insertStmt.setDouble(5, note.getNote());
+                    insertStmt.executeUpdate();
+                }
+            }
         }
     }
 
@@ -395,20 +414,27 @@ public class ServiceSaisirNotes {
     }
 
     private int insertModule(ModelModule module, int ueId) throws SQLException {
-        String query = "INSERT INTO modules (code, name, ueId, enseignantId) VALUES (?, ?, ?, ?) ON DUPLICATE KEY UPDATE moduleId=LAST_INSERT_ID(moduleId)";
+        String selectQuery = "SELECT moduleId FROM modules WHERE code = ? AND name = ?";
+        try (PreparedStatement selectStmt = con.prepareStatement(selectQuery)) {
+            selectStmt.setString(1, module.getCode());
+            selectStmt.setString(2, module.getName());
+            ResultSet rs = selectStmt.executeQuery();
+            if (rs.next()) {
+                return rs.getInt("moduleId");
+            }
+        }
+        // Si le module n'existe pas, on l'insère
+        String query = "INSERT INTO modules (code, name, ueId, enseignantId) VALUES (?, ?, ?, ?)";
         try (PreparedStatement p = con.prepareStatement(query, PreparedStatement.RETURN_GENERATED_KEYS)) {
             p.setString(1, module.getCode());
             p.setString(2, module.getName());
             p.setInt(3, ueId);
-
             if (module.getEnseignant() != null) {
                 p.setInt(4, module.getEnseignant().getEnseignantId());
             } else {
                 p.setNull(4, java.sql.Types.INTEGER);
             }
-
             p.executeUpdate();
-
             ResultSet r = p.getGeneratedKeys();
             if (r.next()) {
                 return r.getInt(1);
@@ -457,13 +483,11 @@ public class ServiceSaisirNotes {
         }
 
         // Mettre à jour la note
-        String queryUpdateNote = "UPDATE notes SET note = ?, etudiantId = ?, moduleId = ?, anneeUniversitaireId = ? WHERE noteId = ?";
-        try (PreparedStatement p = con.prepareStatement(queryUpdateNote)) {
+        System.out.println("UPDATE notes SET note = " + note.getNote() + " WHERE noteId = " + note.getNoteId() + " AND moduleId = " + note.getModule().getModuleId());
+        String sql = "UPDATE notes SET note = ? WHERE noteId = ?";
+        try (PreparedStatement p = con.prepareStatement(sql)) {
             p.setDouble(1, note.getNote());
-            p.setInt(2, note.getEtudiant().getEtudiantId());
-            p.setInt(3, note.getModule().getModuleId());
-            p.setInt(4, note.getAnneeUniversitaire().getAnneeUniversitaireId());
-            p.setInt(5, note.getNoteId());
+            p.setInt(2, note.getNoteId());
             p.executeUpdate();
         }
     }

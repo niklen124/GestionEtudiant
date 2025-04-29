@@ -17,6 +17,7 @@ import com.gag.service.ServiceEnseignant;
 import com.gag.service.ServiceModule;
 import com.gag.service.ServiceSaisirNotes;
 import raven.toast.Notifications;
+import java.text.ParseException;
 
 public class CreateSaisirNote extends javax.swing.JPanel {
 
@@ -356,9 +357,17 @@ public class CreateSaisirNote extends javax.swing.JPanel {
                 return null;
             }
 
+            try {
+                txtNote.commitEdit();
+            } catch (ParseException e) {
+                Notifications.getInstance().show(Notifications.Type.WARNING, "Veuillez entrer une note valide.");
+                return null;
+            }
+
             double noteValue;
             try {
                 noteValue = Double.parseDouble(txtNote.getValue().toString());
+                System.out.println("Valeur de la note saisie : " + noteValue);
                 if (noteValue < 0 || noteValue > 20) {
                     Notifications.getInstance().show(Notifications.Type.WARNING, "La note doit être comprise entre 0 et 20.");
                     return null;

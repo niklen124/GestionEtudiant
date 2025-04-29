@@ -302,4 +302,44 @@ public class ServiceEtudiant {
         }
         return 0; // Retourne 0 si aucun étudiant n'est trouvé
     }
+
+    public ModelEtudiant getEtudiantById(int etudiantId) throws SQLException {
+        String query = "SELECT e.etudiantId, e.matricule, e.name AS etudiantName, e.userName, e.email, e.telephone, e.dateNaissance, e.sexe, " +
+                       "f.filiereId, f.name AS filiereName, au.anneeUniversitaireId, au.debut AS anneeDebut, au.fin AS anneeFin, au.libelle AS anneeLibelle " +
+                       "FROM etudiants e " +
+                       "LEFT JOIN filieres f ON e.filiereId = f.filiereId " +
+                       "LEFT JOIN annees_universitaires au ON e.anneeUniversitaireId = au.anneeUniversitaireId " +
+                       "WHERE e.etudiantId = ?";
+        try (PreparedStatement p = con.prepareStatement(query)) {
+            p.setInt(1, etudiantId);
+            try (ResultSet r = p.executeQuery()) {
+                if (r.next()) {
+                    ModelAnneeUniversitaire anneeUniversitaire = new ModelAnneeUniversitaire(
+                        r.getInt("anneeUniversitaireId"),
+                        r.getInt("anneeDebut"),
+                        r.getInt("anneeFin"),
+                        r.getString("anneeLibelle")
+                    );
+                    ModelFiliere filiere = new ModelFiliere(
+                        r.getInt("filiereId"),
+                        r.getString("filiereName"),
+                        null
+                    );
+                    return new ModelEtudiant(
+                        r.getInt("etudiantId"),
+                        r.getString("matricule"),
+                        r.getString("etudiantName"),
+                        r.getString("userName"),
+                        r.getString("email"),
+                        r.getString("telephone"),
+                        r.getDate("dateNaissance"),
+                        r.getString("sexe"),
+                        anneeUniversitaire,
+                        filiere
+                    );
+                }
+            }
+        }
+        return null;
+    }
 }

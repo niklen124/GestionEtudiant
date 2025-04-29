@@ -415,14 +415,15 @@ public class SaisirNotes extends javax.swing.JPanel {
                             if (dataEdit != null) {
                                 if (note.getInscription() == null) {
                                     Notifications.getInstance().show(Notifications.Type.WARNING, "L'inscription est manquante pour cette note.");
-                                    return; // Arrêter le processus si l'inscription est null
+                                    return;
                                 }
-                                dataEdit.setInscriptionId(note.getInscriptionId()); // Conserver l'ID de l'inscription
-                                dataEdit.setNoteId(note.getNoteId()); // Conserver l'ID de la note
-                                serviceSaisirNotes.editNote(dataEdit); // Mettre à jour la note dans la base de données
+                                dataEdit.setInscriptionId(note.getInscriptionId());
+                                dataEdit.setNoteId(note.getNoteId());
+                                dataEdit.setModule(note.getModule());
+                                serviceSaisirNotes.editNote(dataEdit);
                                 pc.closePopup();
                                 Notifications.getInstance().show(Notifications.Type.SUCCESS, "Note modifiée avec succès.");
-                                loadData(); // Recharger les données dans le tableau
+                                loadData();
                             }
                         } catch (Exception e) {
                             e.printStackTrace();

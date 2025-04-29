@@ -36,10 +36,10 @@ public class PanelCover extends javax.swing.JPanel {
         title.setFont(new Font("sansserif", 1, 30));
         title.setForeground(new Color(245, 245, 245));
         add(title);
-        description = new JLabel("Description du project");
+        description = new JLabel("Application de gestion des Etudiants");
         description.setForeground(new Color(245, 245, 245));
         add(description);
-        subDescription = new JLabel("Entrée c'est info personnel pour se connecté");
+        subDescription = new JLabel("Entrée vos information personnel pour vous connecté");
         subDescription.setForeground(new Color(245, 245, 245));
         add(subDescription);
         button = new ButtonOutLine();
@@ -118,13 +118,13 @@ public class PanelCover extends javax.swing.JPanel {
         if (this.isLogin!=login) {
             if (login) {
                 title.setText("GaG-Etudiant");
-                description.setText("Enter uo");
-                subDescription.setText("jopo");
+                description.setText("Page de Connection");
+                subDescription.setText("Entrée vos Information lors de la création de compte");
                 button.setText("SIGN UP");
             } else {
                 title.setText("GaG-Etudiant");
-                description.setText("Description du project");
-                subDescription.setText("Entrée c'est info personnel pour se connecté");
+                description.setText("Application de gestion des Etudiants");
+                subDescription.setText("Entrée vos information personnel pour vous connecté");
                 button.setText("SIGN IN");
             }
             this.isLogin = login;
